@@ -4,1167 +4,1241 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Duik in het Nederlands</title>
-    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Importeren van een modern en leesbaar lettertype */
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
-
-        /* Algemene stijlen voor de body en de lay-out */
+        /* Algemene styling voor de body en container */
         body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f0f4f8; /* Zachte achtergrondkleur */
-            color: #333; /* Donkergrijze tekstkleur */
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+            color: #1a202c;
             line-height: 1.6;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+            transition: background-color 0.3s, color 0.3s;
+            overflow-x: hidden;
         }
-
-        /* Container voor de gehele app */
+        body.dark {
+            background-color: #121212;
+            color: #e0e0e0;
+        }
         .container {
             max-width: 900px;
-            width: 100%;
-            margin: auto;
-            background-color: #fff; /* Witte achtergrond voor de container */
-            padding: 30px;
-            border-radius: 16px; /* Afgeronde hoeken */
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); /* Zachte schaduw */
+            margin: 2rem auto;
+            padding: 1rem;
+            background-color: #ffffff;
+            border-radius: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transition: background-color 0.3s, box-shadow 0.3s;
         }
-
-        /* Stijlen voor de header */
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
+        body.dark .container {
+            background-color: #1e1e1e;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
         }
-
-        /* Hoofdtitel van de app */
-        h1 {
-            color: #1a237e; /* Donkerblauwe titelkleur */
-            font-weight: 600;
-            font-size: 2.5em;
-            margin: 0;
+        .green-card {
+            background-color: #ecfdf5;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+            border: 2px solid #a7f3d0;
+            transition: background-color 0.3s, border-color 0.3s;
         }
-
-        /* Stijlen voor de puntenweergave */
-        #points-display {
-            background-color: #4caf50; /* Groene achtergrond */
+        body.dark .green-card {
+            background-color: #1e3a24;
+            border-color: #0c4a1e;
+        }
+        .blue-btn {
+            background-color: #2e307f;
             color: white;
-            padding: 10px 20px;
-            border-radius: 20px;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
             font-weight: 600;
-            font-size: 1.2em;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            display: flex;
-            align-items: center;
-        }
-
-        #points-display span {
-            margin-left: 8px;
-        }
-
-        /* Sectie container voor quiz en winkel */
-        .section {
-            background-color: #e8f5e9; /* Zachtgroene achtergrond */
-            padding: 25px;
-            border-radius: 12px;
-            margin-bottom: 25px;
-        }
-
-        /* Titels van de secties */
-        .section-title {
-            color: #2e7d32; /* Donkergroene titelkleur */
-            font-size: 1.8em;
-            font-weight: 600;
-            margin-bottom: 15px;
-        }
-
-        /* Stijlen voor individuele quizvragen */
-        .quiz-item {
+            text-align: center;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             display: flex;
             flex-direction: column;
-            margin-bottom: 15px;
-        }
-
-        .quiz-item label {
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-
-        /* Stijlen voor tekstinvoervelden */
-        input[type="text"] {
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            padding: 10px;
-            font-size: 1em;
-            transition: border-color 0.3s;
-        }
-
-        input[type="text"]:focus {
-            outline: none;
-            border-color: #4caf50; /* Groene rand bij focus */
-        }
-
-        /* Feedback berichten na controle */
-        .feedback {
-            font-weight: bold;
-            margin-top: 5px;
-            font-size: 0.9em;
-        }
-
-        .correct {
-            color: #2e7d32; /* Groene kleur voor correct */
-        }
-
-        .incorrect {
-            color: #d32f2f; /* Rode kleur voor incorrect */
-        }
-
-        /* Algemene stijlen voor knoppen */
-        button {
-            background-color: #1a237e; /* Donkerblauwe achtergrond */
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 1em;
-            font-weight: 600;
-            transition: background-color 0.3s, transform 0.2s;
-        }
-
-        button:hover {
-            background-color: #0d1b54;
-            transform: translateY(-2px); /* Lichte opwaartse beweging */
-        }
-
-        /* Stijlen voor de winkelitems */
-        .shop-item {
-            border: 1px solid #e0e0e0;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-radius: 12px;
-            display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: center;
         }
-
-        .shop-item h3 {
-            margin: 0;
-            color: #1a237e;
+        .blue-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
         }
-
-        .unlocked {
-            color: #2e7d32;
-            font-style: italic;
-            font-weight: 600;
-        }
-
-        /* Lay-out voor de categoriknoppen */
-        .category-buttons {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .category-buttons button {
-            width: 100%;
-        }
-
-        /* Knoppen onder de quiz */
-        #task-buttons {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 15px;
-        }
-
-        /* Modale pop-up voor berichten */
-        #message-box {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: #fff;
-            border: 2px solid #1a237e;
-            border-radius: 12px;
-            padding: 25px;
+        .login-screen {
             text-align: center;
-            z-index: 1000;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-            max-width: 80%;
-            display: none;
+            padding: 2rem;
         }
-
-        #message-box h3 {
-            margin-top: 0;
-            color: #1a237e;
+        #login-input,
+        .modal-content input,
+        .lesson-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
         }
-
-        #message-box p {
-            margin-bottom: 20px;
+        body.dark #login-input,
+        body.dark .modal-content input,
+        body.dark .lesson-input {
+            background-color: #2d2d2d;
+            border-color: #4f4f4f;
+            color: #e0e0e0;
         }
-
-        #message-box-close {
-            background-color: #ff9800;
-            padding: 8px 16px;
+        .shop-item {
+            background-color: #ffffff;
+            transition: background-color 0.3s, box-shadow 0.3s;
         }
-
-        #message-box-overlay {
+        body.dark .shop-item {
+            background-color: #2d2d2d;
+        }
+        .modal {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             background-color: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-            display: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
         }
-
-        /* Stijlen voor de ontgrendelde items sectie */
-        #unlocked-items-section {
-            display: none; /* Standaard verborgen */
-            padding: 25px;
-            background-color: #fce4ec; /* Roze achtergrond */
-            border-radius: 12px;
-            margin-top: 25px;
+        .modal-content {
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 1rem;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            text-align: center;
         }
-
-        #unlocked-items-section h2 {
-            color: #ad1457;
+        body.dark .modal-content {
+            background-color: #1e1e1e;
+        }
+        .hangman-word {
+            letter-spacing: 0.5rem;
+            font-size: 2.5rem;
+            font-weight: bold;
+            font-family: monospace;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        .keyboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        .keyboard button {
+            background-color: #2e307f;
+            color: white;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            font-weight: bold;
+            transition: all 0.2s ease-in-out;
+        }
+        .keyboard button:disabled {
+            background-color: #6b7280;
+            cursor: not-allowed;
+        }
+        .hangman-drawing {
+            font-family: monospace;
+            white-space: pre;
+            text-align: center;
+            font-size: 1.2rem;
+            margin: 1rem 0;
+        }
+        /* Kwadrantenspel specifieke styling */
+        .quadrant-game {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .quadrant-board {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 1rem;
+            width: 100%;
+            max-width: 600px;
+            margin-top: 1rem;
+        }
+        .quadrant-zone {
+            background-color: #f3f4f6;
+            border: 2px dashed #9ca3af;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            min-height: 150px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: border-color 0.2s, background-color 0.2s;
+        }
+        .quadrant-zone.drag-over {
+            border-color: #4f46e5;
+            background-color: #e0e7ff;
+        }
+        .quadrant-word {
+            background-color: #2e307f;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: grab;
+            margin: 0.25rem;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+        .quadrant-word:active {
+            cursor: grabbing;
+        }
+        .word-bank {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .word-bank .quadrant-word {
+            margin: 0;
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <header>
-            <h1>Duik in het Nederlands</h1>
-            <div id="points-display">
-                <span class="emoji">⭐</span>
-                <span id="points-value">0</span> punten
+<body class="bg-gray-100 p-4">
+    <div id="app" class="container">
+        <!-- Login Screen -->
+        <div id="login-screen" class="login-screen">
+            <h1 class="text-3xl font-bold mb-4">Duik in het Nederlands</h1>
+            <p class="text-sm text-gray-500 mb-6">Je voortgang wordt automatisch opgeslagen. Je hebt geen wachtwoord nodig!</p>
+            <div class="space-y-4">
+                <button id="google-login-btn" class="blue-btn w-full flex-row">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/24px-Google_%22G%22_logo.svg.png" alt="Google logo" class="w-6 h-6 mr-2">
+                    Inloggen met Google
+                </button>
+                <button id="microsoft-login-btn" class="blue-btn w-full flex-row">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Microsoft_Corporate_logo.svg/24px-Microsoft_%22G%22_logo.svg.png" alt="Microsoft logo" class="w-6 h-6 mr-2">
+                    Inloggen met Microsoft
+                </button>
+                <button id="teacher-login-btn" class="blue-btn w-full flex-row">
+                    <span class="text-2xl mr-2">👨‍🏫</span>
+                    Ik ben een Docent
+                </button>
+                <div class="relative flex items-center py-5">
+                    <div class="flex-grow border-t border-gray-400"></div>
+                    <span class="flex-shrink mx-4 text-gray-400">of</span>
+                    <div class="flex-grow border-t border-gray-400"></div>
+                </div>
+                <input type="text" id="login-input" placeholder="Voer je naam in..." class="mb-4">
+                <button id="start-btn" class="blue-btn w-full">Starten</button>
             </div>
-        </header>
-        <p>Gebruikers-ID: <span id="user-id">Laden...</span></p>
-        <p>Je voortgang wordt automatisch opgeslagen met deze ID. Je hebt geen wachtwoord nodig!</p>
+        </div>
 
-        <div class="section">
-            <h2 class="section-title" id="task-title">Begin een taak!</h2>
-            <p id="task-description">Klik op een categorie om te beginnen met oefenen!</p>
+        <!-- Teacher Login Modal -->
+        <div id="teacher-login-modal" class="modal hidden">
+            <div class="modal-content">
+                <h2 class="text-2xl font-bold mb-4">Docenten Aanmelding</h2>
+                <input type="text" id="teacher-name-input" placeholder="Voer je naam in..." class="w-full px-4 py-2 border rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-green-600">
+                <input type="password" id="teacher-password-input" placeholder="Wachtwoord" class="w-full px-4 py-2 border rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-green-600">
+                <div class="relative flex items-center py-5">
+                    <div class="flex-grow border-t border-gray-400"></div>
+                    <span class="flex-shrink mx-4 text-gray-400">of</span>
+                    <div class="flex-grow border-t border-gray-400"></div>
+                </div>
+                <button id="teacher-login-submit" class="blue-btn w-full">Aanmelden</button>
+                <button id="teacher-login-close" class="bg-gray-400 text-white px-6 py-2 rounded-full font-bold transition hover:bg-gray-500 mt-4">Sluiten</button>
+            </div>
+        </div>
 
-            <div id="category-selection">
-                <div class="category-buttons">
-                    <button onclick="startNewTask('tt')">Tegenwoordige Tijd</button>
-                    <button onclick="startNewTask('vt')">Verleden Tijd</button>
-                    <button onclick="startNewTask('vd')">Voltooid Deelwoord</button>
-                    <button onclick="startNewTask('voorzetsels')">Voorzetsels</button>
-                    <button onclick="startNewTask('zinsontleding')">Zinsontleding</button>
-                    <button onclick="startNewTask('spelling')">Spelling</button>
-                    <button onclick="startNewTask('meervoud')">Meervoud</button>
-                    <button onclick="startNewTask('verkleinwoorden')">Verkleinwoorden</button>
-                    <button onclick="startNewTask('idiomen')">Idiomen</button>
-                    <button onclick="startNewTask('woordsoorten')">Woordsoorten</button>
-                    <button onclick="startNewTask('ontkenningen')">Ontkenningen</button>
+        <!-- Main App Content (hidden by default) -->
+        <div id="main-content" class="hidden">
+            <!-- Header Section -->
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-3xl font-bold">Duik in het Nederlands</h1>
+                <div class="flex items-center">
+                    <button id="theme-toggle" class="bg-gray-200 text-gray-800 px-3 py-1 rounded-full shadow-md mr-4">
+                        <svg id="sun-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                        </svg>
+                        <svg id="moon-icon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+                        </svg>
+                    </button>
+                    <div id="points-display" class="flex items-center bg-yellow-400 text-gray-800 font-bold px-4 py-2 rounded-full shadow-md">
+                        <span class="mr-2">⭐</span>
+                        <span id="points">0</span> Punten
+                    </div>
+                </div>
+            </div>
+            <p class="text-gray-600 mb-4">Gebruikers-ID: <span id="user-id" class="font-mono">Laden...</span></p>
+
+            <!-- Student Content Section (hidden for teachers) -->
+            <div id="student-only-content">
+                <!-- Navigatie -->
+                <nav class="flex justify-around mb-6 text-xl font-semibold">
+                    <button class="nav-btn p-2 rounded-md transition-colors hover:bg-gray-200" data-target="student-sections">Taken</button>
+                    <button class="nav-btn p-2 rounded-md transition-colors hover:bg-gray-200" data-target="lesson-sections">Lessen</button>
+                    <button class="nav-btn p-2 rounded-md transition-colors hover:bg-gray-200" data-target="quiz-sections">Quiz</button>
+                    <button class="nav-btn p-2 rounded-md transition-colors hover:bg-gray-200" data-target="game-section">Spellen</button>
+                    <button class="nav-btn p-2 rounded-md transition-colors hover:bg-gray-200" data-target="shop-section">Winkel</button>
+                </nav>
+
+                <!-- Student Sections -->
+                <div id="student-sections" class="content-section">
+                    <div id="student-join-section" class="green-card mb-6">
+                        <h2 class="text-2xl font-bold text-green-800 mb-4">Deelnemen aan een klas</h2>
+                        <div class="flex flex-col sm:flex-row items-center mb-4">
+                            <input type="text" id="class-join-input" placeholder="Voer de naam van de klas in..." class="w-full sm:w-2/3 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-600 mb-2 sm:mb-0 sm:mr-4">
+                            <button id="request-join-btn" class="blue-btn w-full sm:w-1/3">Verzoek versturen</button>
+                        </div>
+                        <p id="join-message" class="text-green-700 text-center hidden"></p>
+                    </div>
+
+                    <div id="student-tasks" class="green-card">
+                        <h2 class="text-2xl font-bold text-green-800 mb-4">Jouw Toegewezen Taken</h2>
+                        <ul id="assigned-tasks" class="space-y-2">
+                            <!-- Taken worden hier dynamisch toegevoegd -->
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Lesson Sections -->
+                <div id="lesson-sections" class="content-section hidden">
+                    <div class="green-card mb-6">
+                        <h2 class="text-2xl font-bold text-green-800 mb-4">Woordjes Leren</h2>
+                        <div id="vocabulary-lesson">
+                            <div id="vocab-category-selector" class="mb-4">
+                                <h3 class="font-bold mb-2">Selecteer een Categorie:</h3>
+                                <select id="vocab-category" class="w-full px-4 py-2 border rounded-md">
+                                    <option value="dieren">Dieren</option>
+                                    <option value="eten">Eten & Drinken</option>
+                                    <option value="reizen">Reizen</option>
+                                </select>
+                            </div>
+                            <p id="current-word" class="text-2xl font-bold text-center mb-4 text-blue-700"></p>
+                            <input type="text" id="translation-input" class="lesson-input mb-4" placeholder="Typ je antwoord hier...">
+                            <button id="check-translation-btn" class="blue-btn w-full">Controleren</button>
+                            <p id="translation-result" class="text-center mt-4 hidden"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quiz Sections -->
+                <div id="quiz-sections" class="content-section hidden">
+                    <div class="green-card mb-6">
+                        <h2 class="text-2xl font-bold text-green-800 mb-4">Grammatica en Vocabulaire Quiz</h2>
+                        <div id="quiz-container">
+                            <div id="question-card" class="bg-white p-6 rounded-lg shadow-md">
+                                <p id="question-text" class="text-lg mb-4"></p>
+                                <div id="answer-options" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <!-- Antwoorden worden hier dynamisch geladen -->
+                                </div>
+                            </div>
+                            <button id="next-quiz-btn" class="blue-btn w-full mt-4 hidden">Volgende Vraag</button>
+                            <p id="quiz-feedback" class="text-center mt-4"></p>
+                            <p id="quiz-score" class="text-center mt-2 font-bold"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Game Section -->
+                <div id="game-section" class="content-section hidden">
+                    <div class="green-card mb-6">
+                        <h2 class="text-2xl font-bold text-green-800 mb-4">Galgenman</h2>
+                        <div id="hangman-game" class="text-center">
+                            <pre id="hangman-drawing" class="hangman-drawing"></pre>
+                            <p id="hangman-word-display" class="hangman-word"></p>
+                            <p id="hangman-message" class="text-lg font-semibold mb-4"></p>
+                            <div id="hangman-keyboard" class="keyboard"></div>
+                            <button id="hangman-restart-btn" class="blue-btn w-full hidden">Nieuw Spel</button>
+                        </div>
+                    </div>
+                    <div class="green-card">
+                        <h2 class="text-2xl font-bold text-green-800 mb-4">Kwadrantenspel</h2>
+                        <div id="quadrant-game" class="quadrant-game">
+                            <div id="word-bank" class="word-bank"></div>
+                            <div class="quadrant-board">
+                                <div id="quadrant1" class="quadrant-zone" data-category="dieren">
+                                    <p class="font-bold text-lg">Dieren</p>
+                                </div>
+                                <div id="quadrant2" class="quadrant-zone" data-category="eten">
+                                    <p class="font-bold text-lg">Eten & Drinken</p>
+                                </div>
+                                <div id="quadrant3" class="quadrant-zone" data-category="reizen">
+                                    <p class="font-bold text-lg">Reizen</p>
+                                </div>
+                                <div id="quadrant4" class="quadrant-zone" data-category="beroepen">
+                                    <p class="font-bold text-lg">Beroepen</p>
+                                </div>
+                            </div>
+                            <button id="check-quadrants-btn" class="blue-btn w-full mt-4">Controleer Antwoorden</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Shop Section -->
+                <div id="shop-section" class="content-section hidden">
+                    <div class="green-card">
+                        <h2 class="text-2xl font-bold text-green-800 mb-4">Winkel (Shop) 🛍️</h2>
+                        <p class="text-green-700 mb-6">Geef je punten uit aan leuke dingen!</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="shop-items-container">
+                            <!-- Shop items will be generated here -->
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div id="task-content" style="display:none;">
-                <!-- Dynamische inhoud wordt hier geladen -->
+            <!-- Teacher Section (hidden for students) -->
+            <div id="teacher-section" class="green-card hidden">
+                <!-- Teacher classes view -->
+                <div id="class-view">
+                    <h2 class="text-2xl font-bold text-green-800 mb-4">Docentenportaal</h2>
+                    <div class="flex flex-col sm:flex-row items-center mb-4">
+                        <input type="text" id="class-name-input" placeholder="Naam van de nieuwe klas..." class="w-full sm:w-2/3 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-600 mb-2 sm:mb-0 sm:mr-4">
+                        <button id="create-class-btn" class="blue-btn w-full sm:w-1/3">Klas Maken</button>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Jouw Klassen:</h3>
+                    <ul id="class-list" class="space-y-2"></ul>
+                </div>
+                
+                <!-- Student management and task assignment view (hidden by default) -->
+                <div id="teacher-class-management" class="hidden">
+                    <h2 id="teacher-class-title" class="text-2xl font-bold text-green-800 mb-4"></h2>
+                    <div class="flex flex-col sm:flex-row items-center mb-4">
+                        <input type="text" id="add-student-input" placeholder="Naam van de nieuwe leerling..." class="w-full sm:w-2/3 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-600 mb-2 sm:mb-0 sm:mr-4">
+                        <button id="add-student-btn" class="blue-btn w-full sm:w-1/3">Leerling Toevoegen</button>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Leerlingen in deze klas:</h3>
+                    <ul id="student-list" class="space-y-2 mb-4"></ul>
+                    
+                    <h3 class="text-xl font-semibold mb-2">Taak Toewijzen:</h3>
+                    <div class="flex flex-col sm:flex-row items-center mb-4">
+                        <input type="text" id="task-input" placeholder="Beschrijf de taak..." class="w-full sm:w-2/3 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-600 mb-2 sm:mb-0 sm:mr-4">
+                        <button id="assign-task-btn" class="blue-btn w-full sm:w-1/3">Taak Toewijzen</button>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Toegewezen Taken:</h3>
+                    <ul id="teacher-task-list" class="space-y-2"></ul>
+
+                    <button id="back-to-classes-btn" class="mt-4 bg-gray-400 text-white px-6 py-2 rounded-full font-bold transition hover:bg-gray-500">Terug naar klassen</button>
+                </div>
             </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // UI Elementen ophalen
+            const loginScreen = document.getElementById('login-screen');
+            const mainContent = document.getElementById('main-content');
+            const startBtn = document.getElementById('start-btn');
+            const googleLoginBtn = document.getElementById('google-login-btn');
+            const microsoftLoginBtn = document.getElementById('microsoft-login-btn');
+            const teacherLoginBtn = document.getElementById('teacher-login-btn');
+            const loginInput = document.getElementById('login-input');
+            const userIdEl = document.getElementById('user-id');
+            const pointsEl = document.getElementById('points');
+            const themeToggleBtn = document.getElementById('theme-toggle');
+            const body = document.body;
+            const sunIcon = document.getElementById('sun-icon');
+            const moonIcon = document.getElementById('moon-icon');
             
-            <div id="task-buttons" style="display:none;">
-                <button id="check-button" onclick="checkCurrentTask()">Controleer Antwoorden</button>
-                <button id="new-task-btn" onclick="showCategorySelection()">Terug naar categorieën</button>
-            </div>
-        </div>
+            const studentOnlyContent = document.getElementById('student-only-content');
+            const pointsDisplay = document.getElementById('points-display');
+            const navButtons = document.querySelectorAll('.nav-btn');
+            const contentSections = document.querySelectorAll('.content-section');
 
-        <hr>
+            // Student UI
+            const assignedTasksList = document.getElementById('assigned-tasks');
+            const classJoinInput = document.getElementById('class-join-input');
+            const requestJoinBtn = document.getElementById('request-join-btn');
+            const joinMessage = document.getElementById('join-message');
+            
+            // Teacher UI
+            const teacherSection = document.getElementById('teacher-section');
+            const classView = document.getElementById('class-view');
+            const teacherClassManagement = document.getElementById('teacher-class-management');
+            const teacherClassTitle = document.getElementById('teacher-class-title');
+            const classNameInput = document.getElementById('class-name-input');
+            const createClassBtn = document.getElementById('create-class-btn');
+            const classList = document.getElementById('class-list');
+            const addStudentInput = document.getElementById('add-student-input');
+            const addStudentBtn = document.getElementById('add-student-btn');
+            const studentList = document.getElementById('student-list');
+            const taskInput = document.getElementById('task-input');
+            const assignTaskBtn = document.getElementById('assign-task-btn');
+            const teacherTaskList = document.getElementById('teacher-task-list');
+            const backToClassesBtn = document.getElementById('back-to-classes-btn');
+            
+            // Login Modal
+            const teacherLoginModal = document.getElementById('teacher-login-modal');
+            const teacherLoginSubmitBtn = document.getElementById('teacher-login-submit');
+            const teacherLoginCloseBtn = document.getElementById('teacher-login-close');
+            const teacherNameInput = document.getElementById('teacher-name-input');
+            const teacherPasswordInput = document.getElementById('teacher-password-input');
 
-        <div class="section">
-            <h2 class="section-title">Winkel (Shop) 🛍️</h2>
-            <p>Geef je punten uit aan leuke dingen!</p>
-            <div class="shop-item">
-                <div>
-                    <h3>Digitale Badge "Grammatica Expert" 🖋️</h3>
-                    <p>Kosten: 5 punten</p>
-                </div>
-                <button id="buy-badge-btn" onclick="buyItem('badge', 5)">Koop</button>
-                <span id="badge-status"></span>
-            </div>
-            <div class="shop-item">
-                <div>
-                    <h3>Nederlandse Mop 😂</h3>
-                    <p>Kosten: 3 punten</p>
-                </div>
-                <button id="buy-joke-btn" onclick="buyItem('joke', 3)">Koop</button>
-                <p id="joke-content" style="display: none;"></p>
-            </div>
-            <div class="shop-item">
-                <div>
-                    <h3>Punten-Verdubbelaar 🚀</h3>
-                    <p>Kosten: 10 punten</p>
-                </div>
-                <button id="buy-doubler-btn" onclick="buyItem('doubler', 10)">Koop</button>
-                <span id="doubler-status"></span>
-            </div>
-            <div class="shop-item">
-                <div>
-                    <h3>Virtuele Sticker "Goed Bezig!" 🏅</h3>
-                    <p>Kosten: 2 punten</p>
-                </div>
-                <button id="buy-sticker-btn" onclick="buyItem('sticker', 2)">Koop</button>
-                <span id="sticker-status"></span>
-            </div>
-            <div class="shop-item">
-                <div>
-                    <h3>Bonus Vraag 💡</h3>
-                    <p>Kosten: 8 punten (Verdien 20 punten!)</p>
-                </div>
-                <button id="buy-bonus-btn" onclick="buyItem('bonus_question', 8)">Koop</button>
-                <span id="bonus-status"></span>
-            </div>
-        </div>
+            // Lesson UI & Data
+            const vocabularyLessons = {
+                dieren: [{ en: "dog", nl: "hond" }, { en: "cat", nl: "kat" }, { en: "bird", nl: "vogel" }],
+                eten: [{ en: "apple", nl: "appel" }, { en: "bread", nl: "brood" }, { en: "cheese", nl: "kaas" }],
+                reizen: [{ en: "train", nl: "trein" }, { en: "plane", nl: "vliegtuig" }, { en: "hotel", nl: "hotel" }]
+            };
+            let currentVocabLesson = [];
+            let currentWordIndex = 0;
+            const vocabCategorySelector = document.getElementById('vocab-category');
+            const currentWordEl = document.getElementById('current-word');
+            const translationInput = document.getElementById('translation-input');
+            const checkTranslationBtn = document.getElementById('check-translation-btn');
+            const translationResultEl = document.getElementById('translation-result');
 
-        <div id="unlocked-items-section">
-            <h2 class="section-title">Jouw Ontgrendelde Items</h2>
-            <ul id="unlocked-items-list">
-                <!-- Ontgrendelde items worden hier dynamisch toegevoegd -->
-            </ul>
-        </div>
-    </div>
-    
-    <div id="message-box-overlay"></div>
-    <div id="message-box">
-        <h3 id="message-box-title"></h3>
-        <p id="message-box-text"></p>
-        <button id="message-box-close" onclick="closeMessageBox()">Sluiten</button>
-    </div>
+            // Quiz UI & Data
+            const quizzes = [
+                {
+                    question: "Welk woord is een zelfstandig naamwoord?",
+                    options: ["lopen", "snel", "boek", "rood"],
+                    answer: "boek"
+                },
+                {
+                    question: "Wat is het meervoud van 'huis'?",
+                    options: ["huizen", "huizenes", "huisen", "huis"],
+                    answer: "huizen"
+                },
+                {
+                    question: "Wat is de juiste spelling?",
+                    options: ["'t Is", "Het is", "Het's", "Is het"],
+                    answer: "'t Is"
+                },
+                {
+                    question: "Wat is de vervoeging van 'zijn' in de tegenwoordige tijd voor 'hij'?",
+                    options: ["ben", "is", "zijn", "bent"],
+                    answer: "is"
+                }
+            ];
+            let currentQuizQuestionIndex = 0;
+            const quizContainer = document.getElementById('quiz-container');
+            const questionTextEl = document.getElementById('question-text');
+            const answerOptionsEl = document.getElementById('answer-options');
+            const nextQuizBtn = document.getElementById('next-quiz-btn');
+            const quizFeedbackEl = document.getElementById('quiz-feedback');
+            const quizScoreEl = document.getElementById('quiz-score');
 
-    <script type="module">
-        // Import necessary Firebase modules
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+            // Hangman Logic
+            const hangmanWords = ["fiets", "boom", "school", "computer", "Nederlands", "galgenman", "programmeren"];
+            const hangmanStages = [
+`
+  +---+
+  |   |
+      |
+      |
+      |
+      |
+=========`,
+`
+  +---+
+  |   |
+  O   |
+      |
+      |
+      |
+=========`,
+`
+  +---+
+  |   |
+  O   |
+  |   |
+      |
+      |
+=========`,
+`
+  +---+
+  |   |
+  O   |
+ /|   |
+      |
+      |
+=========`,
+`
+  +---+
+  |   |
+  O   |
+ /|\\  |
+      |
+      |
+=========`,
+`
+  +---+
+  |   |
+  O   |
+ /|\\  |
+ /    |
+      |
+=========`,
+`
+  +---+
+  |   |
+  O   |
+ /|\\  |
+ / \\  |
+      |
+=========
+`
+            ];
+            let hangmanWord = "";
+            let guessedLetters = [];
+            let mistakes = 0;
+            const maxMistakes = 6;
+            const hangmanDrawingEl = document.getElementById('hangman-drawing');
+            const hangmanWordDisplayEl = document.getElementById('hangman-word-display');
+            const hangmanMessageEl = document.getElementById('hangman-message');
+            const hangmanKeyboardEl = document.getElementById('hangman-keyboard');
+            const hangmanRestartBtn = document.getElementById('hangman-restart-btn');
 
-        // Firebase and user state variables
-        let app;
-        let db;
-        let auth;
-        let userId = null;
-        let userDocRef = null;
-        let isAuthReady = false;
+            // Kwadrantenspel Logic & Data
+            const quadrantData = {
+                dieren: ["hond", "kat", "vogel", "paard", "konijn"],
+                eten: ["pizza", "appel", "kaas", "brood", "pasta"],
+                reizen: ["trein", "vliegtuig", "bus", "auto", "fiets"],
+                beroepen: ["arts", "leraar", "bakker", "monteur", "kok"]
+            };
+            const wordBankEl = document.getElementById('word-bank');
+            const checkQuadrantsBtn = document.getElementById('check-quadrants-btn');
+            let dragSourceEl = null;
 
-        // Game state variables
-        let points = 0;
-        let badgeUnlocked = false;
-        let jokeUnlocked = false;
-        let pointDoublerStacks = 0;
-        let stickerUnlocked = false;
-        let bonusQuestionUnlocked = false;
-        let unlockedItems = [];
-        let currentTaskAnswers = null;
-        let currentTaskInputs = [];
+            // Shop Data
+            const shopItems = [
+                { id: 1, name: "Digitale Badge 'Grammatica Expert'", cost: 5, icon: "✍️" },
+                { id: 2, name: "Chatbot Tutor", cost: 10, icon: "🤖" },
+                { id: 3, name: "Nederlandse Mop", cost: 3, icon: "🤓" },
+                { id: 4, name: "Punten-Verdubbelaar", cost: 10, icon: "🚀" },
+                { id: 5, name: "Virtuele Sticker 'Goed Bezig!'", cost: 2, icon: "🏆" },
+                { id: 6, name: "Bonus Vraag", cost: 8, icon: "💡" },
+                { id: 7, name: "Nieuwe Achtergrond", cost: 15, icon: "🖼️" },
+                { id: 8, name: "Joker (Galgenman)", cost: 5, icon: "🃏" },
+            ];
+            const shopItemsContainer = document.getElementById('shop-items-container');
 
-        // Extensive quiz data for dynamic quiz generation
-        const quizData = {
-            'tt': { // Tegenwoordige tijd (Present Tense)
-                title: "Spelling: Werkwoorden (tegenwoordige tijd)",
-                description: "Spel de werkwoorden in de tegenwoordige tijd (tt).",
-                verbstems: [
-                    'fietsen', 'lopen', 'denken', 'praten', 'voelen', 'schrijven', 'lezen', 'zien', 'drinken', 'horen',
-                    'werken', 'geven', 'nemen', 'komen', 'gaan', 'willen', 'kunnen', 'moeten', 'durven', 'weten',
-                    'zeggen', 'doen', 'eindigen', 'slapen', 'brengen', 'vinden', 'helpen', 'krijgen', 'zitten', 'staan',
-                    'rijden', 'vergeten', 'ontmoeten', 'spelen', 'bouwen', 'dansen', 'sluiten', 'groeien', 'spreken', 'vragen',
-                    'verkopen', 'zwemmen', 'houden', 'wassen', 'eten', 'kijken', 'verliezen', 'vertellen', 'bloeien', 'kopen',
-                    'reizen', 'leiden', 'werken', 'wonen', 'zitten', 'vertellen', 'begrijpen', 'vinden', 'eten', 'drinken',
-                    'zorgen', 'bouwen', 'reizen', 'zingen', 'slapen', 'dansen', 'sluiten', 'groeien', 'spreken', 'vragen',
-                    'verkopen', 'verliezen', 'zwemmen', 'houden', 'wassen', 'eten', 'kijken', 'verliezen', 'vertellen', 'bloeien',
-                    'kopen', 'lachen', 'huilen', 'springen', 'vliegen', 'vechten', 'vegen', 'weten', 'willen', 'dwingen',
-                    'vallen', 'zenden', 'verklaren', 'beloven', 'bezoeken', 'schrikken', 'zwijgen', 'verhuizen', 'uitgaan', 'opstaan'
-                ]
-            },
-            'vt': { // Verleden tijd (Past Tense)
-                title: "Spelling: Werkwoorden (verleden tijd)",
-                description: "Vul de correcte verleden tijd in.",
-                verbs: [
-                    { inf: 'reizen', vt: 'reisde' }, { inf: 'kijken', vt: 'keek' }, { inf: 'eten', vt: 'aten' },
-                    { inf: 'slapen', vt: 'sliep' }, { inf: 'rennen', vt: 'renden' }, { inf: 'stoppen', vt: 'stopte' },
-                    { inf: 'vinden', vt: 'vond' }, { inf: 'zijn', vt: 'was' }, { inf: 'willen', vt: 'wilden' },
-                    { inf: 'gaan', vt: 'ging' }, { inf: 'weten', vt: 'wisten' }, { inf: 'moeten', vt: 'moesten' },
-                    { inf: 'lopen', vt: 'liep' }, { inf: 'drinken', vt: 'dronken' }, { inf: 'vliegen', vt: 'vlogen' },
-                    { inf: 'brengen', vt: 'bracht' }, { inf: 'verliezen', vt: 'verloor' }, { inf: 'vertellen', vt: 'vertelde' },
-                    { inf: 'voelen', vt: 'voelden' }, { inf: 'bloeien', vt: 'bloeide' }, { inf: 'kopen', vt: 'kocht' },
-                    { inf: 'zeggen', vt: 'zei' }, { inf: 'doen', vt: 'deed' }, { inf: 'horen', vt: 'hoorde' },
-                    { inf: 'vragen', vt: 'vroeg' }, { inf: 'maken', vt: 'maakte' }, { inf: 'schrijven', vt: 'schreef' },
-                    { inf: 'beginnen', vt: 'begonnen' }, { inf: 'helpen', vt: 'hielpen' }, { inf: 'krijgen', vt: 'kreeg' },
-                    { inf: 'denken', vt: 'dacht' }, { inf: 'zitten', vt: 'zat' }, { inf: 'staan', vt: 'stond' },
-                    { inf: 'geven', vt: 'gaf' }, { inf: 'lezen', vt: 'las' }, { inf: 'zwemmen', vt: 'zwommen' },
-                    { inf: 'houden', vt: 'hield' }, { inf: 'wassen', vt: 'waste' }, { inf: 'bouwen', vt: 'bouwde' },
-                    { inf: 'rijden', vt: 'reed' }, { inf: 'vergeten', vt: 'vergat' }, { inf: 'ontmoeten', vt: 'ontmoette' },
-                    { inf: 'spelen', vt: 'speelde' }, { inf: 'bouwen', vt: 'bouwden' }, { inf: 'dansen', vt: 'danste' },
-                    { inf: 'sluiten', vt: 'sloot' }, { inf: 'groeien', vt: 'groeide' }, { inf: 'spreken', vt: 'sprak' },
-                    { inf: 'verkopen', vt: 'verkocht' }, { inf: 'zien', vt: 'zag' }, { inf: 'zwemmen', vt: 'zwom' },
-                    { inf: 'vechten', vt: 'vocht' }, { inf: 'vegen', vt: 'veegde' }, { inf: 'vallen', vt: 'viel' },
-                    { inf: 'zenden', vt: 'zond' }, { inf: 'verklaren', vt: 'verklaarde' }, { inf: 'beloven', vt: 'beloofde' },
-                    { inf: 'bezoeken', vt: 'bezocht' }, { inf: 'schrikken', vt: 'schrok' }, { inf: 'verhuizen', vt: 'verhuisde' },
-                    { inf: 'uitgaan', vt: 'ging uit' }, { inf: 'opstaan', vt: 'stond op' }, { inf: 'winnen', vt: 'won' },
-                    { inf: 'verliezen', vt: 'verloor' }, { inf: 'kennen', vt: 'kende' }, { inf: 'kiezen', vt: 'koos' },
-                    { inf: 'lijden', vt: 'leed' }, { inf: 'schijnen', vt: 'scheen' }, { inf: 'snijden', vt: 'sneed' },
-                    { inf: 'sluiten', vt: 'sloot' }, { inf: 'stelen', vt: 'stal' }, { inf: 'trekken', vt: 'trok' },
-                    { inf: 'vriezen', vt: 'vroor' }, { inf: 'weten', vt: 'wist' }, { inf: 'wijzen', vt: 'wees' }
-                ]
-            },
-            'vd': { // Voltooid Deelwoord (Past Participle)
-                title: "Grammatica: Voltooid Deelwoord",
-                description: "Vul het correcte voltooid deelwoord in.",
-                verbs: [
-                    { inf: 'vinden', vd: 'gevonden' }, { inf: 'openen', vd: 'geopend' },
-                    { inf: 'lopen', vd: 'gelopen' }, { inf: 'vangen', vd: 'gevangen' },
-                    { inf: 'lezen', vd: 'gelezen' }, { inf: 'geven', vd: 'gegeven' },
-                    { inf: 'gaan', vd: 'gegaan' }, { inf: 'zingen', vd: 'gezongen' },
-                    { inf: 'verliezen', vd: 'verloren' }, { inf: 'wassen', vd: 'gewassen' },
-                    { inf: 'klimmen', vd: 'geklommen' }, { inf: 'schrijven', vd: 'geschreven' },
-                    { inf: 'spelen', vd: 'gespeeld' }, { inf: 'uitleggen', vd: 'uitgelegd' },
-                    { inf: 'eten', vd: 'gegeten' }, { inf: 'schilderen', vd: 'geschilderd' },
-                    { inf: 'brengen', vd: 'gebracht' }, { inf: 'vouwen', vd: 'gevouwen' },
-                    { inf: 'bakken', vd: 'gebakken' }, { inf: 'praten', vd: 'gepraat' },
-                    { inf: 'werken', vd: 'gewerkt' }, { inf: 'kopen', vd: 'gekocht' },
-                    { inf: 'zijn', vd: 'geweest' }, { inf: 'doen', vd: 'gedaan' },
-                    { inf: 'spreken', vd: 'gesproken' }, { inf: 'vragen', vd: 'gevraagd' },
-                    { inf: 'helpen', vd: 'geholpen' }, { inf: 'houden', vd: 'gehouden' },
-                    { inf: 'verkopen', vd: 'verkocht' }, { inf: 'zien', vd: 'gezien' },
-                    { inf: 'zwemmen', vd: 'gezwommen' }, { inf: 'schrijven', vd: 'geschreven' },
-                    { inf: 'beginnen', vd: 'begonnen' }, { inf: 'weten', vd: 'geweten' },
-                    { inf: 'verliezen', vd: 'verloren' }, { inf: 'betalen', vd: 'betaald' },
-                    { inf: 'bouwen', vd: 'gebouwd' }, { inf: 'kennen', vd: 'gekend' },
-                    { inf: 'rijden', vd: 'gereden' }, { inf: 'groeien', vd: 'gegroeid' },
-                    { inf: 'vallen', vd: 'gevallen' }, { inf: 'staan', vd: 'gestaan' },
-                    { inf: 'verhuizen', vd: 'verhuisd' }, { inf: 'opstaan', vd: 'opgestaan' },
-                    { inf: 'winnen', vd: 'gewonnen' }, { inf: 'verstoppen', vd: 'verstopt' },
-                    { inf: 'verhuizen', vd: 'verhuisd' }, { inf: 'leiden', vd: 'geleid' },
-                    { inf: 'kiezen', vd: 'gekozen' }, { inf: 'dansen', vd: 'gedanst' },
-                    { inf: 'schilderen', vd: 'geschilderd' }, { inf: 'vergeten', vd: 'vergeten' },
-                    { inf: 'drinken', vd: 'gedronken' }, { inf: 'liegen', vd: 'gelogen' },
-                    { inf: 'rijden', vd: 'gereden' }, { inf: 'stelen', vd: 'gestolen' },
-                    { inf: 'wensen', vd: 'gewenst' }, { inf: 'luisteren', vd: 'geluisterd' },
-                    { inf: 'ontmoeten', vd: 'ontmoet' }, { inf: 'verstaan', vd: 'verstaan' },
-                    { inf: 'voelen', vd: 'gevoeld' }, { inf: 'huilen', vd: 'gehuild' },
-                    { inf: 'slapen', vd: 'geslapen' }, { inf: 'vriezen', vd: 'gevroren' },
-                    { inf: 'branden', vd: 'gebrand' }, { inf: 'bouwen', vd: 'gebouwd' }
-                ]
-            },
-            'voorzetsels': { // Prepositions
-                title: "Grammatica: Voorzetsels",
-                description: "Vul het correcte voorzetsel in.",
-                sentences: [
-                    { question: "De pen ligt ... de tafel.", answer: "op" },
-                    { question: "Ik ga ... school.", answer: "naar" },
-                    { question: "De bal rolt ... de stoel.", answer: "onder" },
-                    { question: "We zitten ... de bank.", answer: "op" },
-                    { question: "Hij loopt ... het huis.", answer: "om" },
-                    { question: "De kat springt ... de doos.", answer: "in" },
-                    { question: "De lamp hangt ... het bed.", answer: "boven" },
-                    { question: "De auto staat ... de garage.", answer: "in" },
-                    { question: "Het boek valt ... de kast.", answer: "uit" },
-                    { question: "Ik kijk ... het raam.", answer: "uit" },
-                    { question: "Zij woont ... Amsterdam.", answer: "in" },
-                    { question: "De boot vaart ... het kanaal.", answer: "op" },
-                    { question: "De kinderen spelen ... de speeltuin.", answer: "in" },
-                    { question: "We eten ... de keuken.", answer: "in" },
-                    { question: "De vogel vliegt ... de bomen.", answer: "tussen" },
-                    { question: "De hond ligt ... de mand.", answer: "in" },
-                    { question: "Zij schreef een brief ... haar vriendin.", answer: "aan" },
-                    { question: "Ik ga ... een reis.", answer: "op" },
-                    { question: "De trein rijdt ... het station.", answer: "naar" },
-                    { question: "Het vliegtuig vliegt ... de wolken.", answer: "door" },
-                    { question: "Hij is bang ... spinnen.", answer: "voor" },
-                    { question: "Ik heb zin ... pizza.", answer: "in" },
-                    { question: "De leraar vertelde ... de geschiedenis van de stad.", answer: "over" },
-                    { question: "We hebben het ... het weer.", answer: "over" },
-                    { question: "Hij wacht ... de bus.", answer: "op" },
-                    { question: "Zij is verliefd ... hem.", answer: "op" },
-                    { question: "De schoenen staan ... de deur.", answer: "bij" },
-                    { question: "Ik ben klaar ... de test.", answer: "met" },
-                    { question: "Zij kijkt ... hem.", answer: "naar" },
-                    { question: "Hij denkt ... zijn toekomst.", answer: "aan" },
-                    { question: "De bloemen zijn ... de tuin.", answer: "uit" },
-                    { question: "We lopen ... de straat.", answer: "door" },
-                    { question: "Hij is ... huis.", answer: "thuis" },
-                    { question: "De auto staat ... het stoplicht.", answer: "bij" },
-                    { question: "Ik ben trots ... jou.", answer: "op" },
-                    { question: "Hij praat ... zijn werk.", answer: "over" },
-                    { question: "De beker is gemaakt ... glas.", answer: "van" },
-                    { question: "Ik werk ... een nieuw project.", answer: "aan" },
-                    { question: "De sleutel is ... de deur.", answer: "in" },
-                    { question: "Zij heeft talent ... schilderen.", answer: "voor" },
-                    { question: "De hond luistert ... zijn baasje.", answer: "naar" },
-                    { question: "Ik ga ... het buitenland.", answer: "naar" },
-                    { question: "Zij spreekt ... haar vader.", answer: "met" },
-                    { question: "De foto hangt ... de muur.", answer: "aan" },
-                    { question: "Hij is geboren ... 1990.", answer: "in" },
-                    { question: "De film begint ... acht uur.", answer: "om" },
-                    { question: "Ik ben ... een kwartier klaar.", answer: "over" },
-                    { question: "De jongen rent ... de hond.", answer: "achter" },
-                    { question: "We wachten ... de regen stopt.", answer: "tot" },
-                    { question: "Hij kijkt ... de hoek.", answer: "om" },
-                    { question: "Ik reis ... de trein.", answer: "met" }
-                ]
-            },
-            'zinsontleding': { // Sentence Analysis
-                title: "Grammatica: Zinsontleding",
-                description: "Vul het ontbrekende woord in om de zin compleet te maken.",
-                sentences: [
-                    { question: "Mijn broer en ik ... in de tuin.", answer: "spelen" },
-                    { question: "... zijn heel snel.", answer: "zij" },
-                    { question: "De jongen ... met zijn bal.", answer: "speelt" },
-                    { question: "... gaan naar de film.", answer: "wij" },
-                    { question: "Het kind ... vrolijk.", answer: "lacht" },
-                    { question: "De zon ... fel.", answer: "schijnt" },
-                    { question: "Het meisje ... de bloemen.", answer: "plukt" },
-                    { question: "De auto ... hard.", answer: "rijdt" },
-                    { question: "Mijn ouders ... thuis.", answer: "zijn" },
-                    { question: "De kat ... zachtjes.", answer: "miauwt" },
-                    { question: "Wij ... een cake.", answer: "bakken" },
-                    { question: "Jij ... de krant.", answer: "leest" },
-                    { question: "Ik ... een liedje.", answer: "zing" },
-                    { question: "De vogel ... een nestje.", answer: "bouwt" },
-                    { question: "Het water ... de rivier.", answer: "stroomt" },
-                    { question: "De leraar ... de studenten.", answer: "helpt" },
-                    { question: "De hond ... met zijn staart.", answer: "kwispelt" },
-                    { question: "De bloem ... mooi.", answer: "groeit" },
-                    { question: "De kinderen ... op het plein.", answer: "spelen" },
-                    { question: "De jongen ... een verhaal.", answer: "schrijft" },
-                    { question: "De wind ... door de bomen.", answer: "waait" },
-                    { question: "Ik ... een boek.", answer: "lees" },
-                    { question: "De bakker ... brood.", answer: "bakt" },
-                    { question: "De schilder ... een portret.", answer: "schildert" },
-                    { question: "De bloemist ... een boeket.", answer: "maakt" },
-                    { question: "De kok ... soep.", answer: "kookt" },
-                    { question: "De visser ... een vis.", answer: "vangt" },
-                    { question: "De chauffeur ... de bus.", answer: "bestuurt" },
-                    { question: "De boer ... het land.", answer: "ploegt" },
-                    { question: "De timmerman ... een tafel.", answer: "maakt" },
-                    { question: "De hond ... hard.", answer: "rent" },
-                    { question: "De kat ... zachtjes.", answer: "slaapt" },
-                    { question: "De zangeres ... prachtig.", answer: "zingt" },
-                    { question: "De student ... de les.", answer: "volgt" },
-                    { question: "De postbode ... de post.", answer: "bezorgt" },
-                    { question: "De brandweerman ... het vuur.", answer: "blust" },
-                    { question: "De verpleegkundige ... de patiënt.", answer: "verzorgt" },
-                    { question: "De tuinman ... de planten.", answer: "geeft water aan" },
-                    { question: "De arts ... de zieke mensen.", answer: "geneest" },
-                    { question: "De schrijver ... een nieuw boek.", answer: "schrijft" },
-                    { question: "De leraar ... de klas.", answer: "onderwijst" },
-                    { question: "De piloot ... het vliegtuig.", answer: "vliegt" },
-                    { question: "De politieagent ... de dief.", answer: "arresteert" },
-                    { question: "De leeuw ... op zijn prooi.", answer: "jaagt" },
-                    { question: "Het paard ... over het veld.", answer: "galoppeert" },
-                    { question: "De robot ... de vloer.", answer: "veegt" },
-                    { question: "De astronaut ... in de ruimte.", answer: "zweeft" },
-                    { question: "De boeken ... in de kast.", answer: "staan" },
-                    { question: "De film ... om acht uur.", answer: "begint" },
-                    { question: "De zon ... 's ochtends.", answer: "komt op" },
-                    { question: "De auto ... aan het einde van de straat.", answer: "staat" },
-                    { question: "De kat ... over het hek.", answer: "springt" },
-                    { question: "De vogel ... in de boom.", answer: "zong" },
-                    { question: "Het kind ... zijn huiswerk.", answer: "maakt" }
-                ]
-            },
-            'spelling': { // Spelling
-                title: "Spelling: Moeilijke woorden",
-                description: "Spel het woord correct.",
-                words: [
-                    'onmiddellijk', 'enthousiast', 'enthousiasme', 'onvergetelijk', 'ingewikkeld',
-                    'afhankelijk', 'onafhankelijk', 'tegenwoordig', 'onweerstaanbaar', 'verrassing',
-                    'verrassend', 'verzamelen', 'veranderlijk', 'voortdurend', 'verantwoordelijkheid',
-                    'onuitputtelijk', 'uiteindelijk', 'waarschijnlijk', 'onvoorstelbaar', 'belangrijk',
-                    'mogelijkheid', 'werkelijkheid', 'gezelligheid', 'aannemelijk', 'onuitvoerbaar',
-                    'afzonderlijk', 'uitzonderlijk', 'vervelend', 'afgelopen', 'gewoonlijk',
-                    'ongebruikelijk', 'opmerkelijk', 'vrijwillig', 'onmiddellijke', 'onoverwinnelijk',
-                    'aanvaardbaar', 'onuitspreekbaar', 'uitvoerbaar', 'onverstaanbaar', 'tegenstrijdig',
-                    'ontzettend', 'uitzonderlijk', 'onverantwoordelijk', 'onverantwoord', 'onweerstaanbaar',
-                    'onvoorzien', 'uitzonderingen', 'onafhankelijkheid', 'onuitputtelijk', 'onwillekeurig'
-                ]
-            },
-            'meervoud': { // Plural
-                title: "Grammatica: Meervoud",
-                description: "Geef het meervoud van het woord.",
-                words: [
-                    { singular: 'huis', plural: 'huizen' }, { singular: 'stoel', plural: 'stoelen' },
-                    { singular: 'kind', plural: 'kinderen' }, { singular: 'boom', plural: 'bomen' },
-                    { singular: 'boek', plural: 'boeken' }, { singular: 'tafel', plural: 'tafels' },
-                    { singular: 'stad', plural: 'steden' }, { singular: 'ei', plural: 'eieren' },
-                    { singular: 'mes', plural: 'messen' }, { singular: 'lepel', plural: 'lepels' },
-                    { singular: 'broek', plural: 'broeken' }, { singular: 'jas', plural: 'jassen' },
-                    { singular: 'telefoon', plural: 'telefoons' }, { singular: 'hand', plural: 'handen' },
-                    { singular: 'vogel', plural: 'vogels' }, { singular: 'dier', plural: 'dieren' },
-                    { singular: 'school', plural: 'scholen' }, { singular: 'leraar', plural: 'leraren' },
-                    { singular: 'leerling', plural: 'leerlingen' }, { singular: 'muis', plural: 'muizen' },
-                    { singular: 'dorp', plural: 'dorpen' }, { singular: 'bloem', plural: 'bloemen' },
-                    { singular: 'schoen', plural: 'schoenen' }, { singular: 'tas', plural: 'tassen' },
-                    { singular: 'doos', plural: 'dozen' }, { singular: 'krant', plural: 'kranten' },
-                    { singular: 'stoel', plural: 'stoelen' }, { singular: 'brug', plural: 'bruggen' },
-                    { singular: 'appel', plural: 'appels' }, { singular: 'banaan', plural: 'bananen' },
-                    { singular: 'ziekenhuis', plural: 'ziekenhuizen' }, { singular: 'vrouw', plural: 'vrouwen' },
-                    { singular: 'man', plural: 'mannen' }, { singular: 'fiets', plural: 'fietsen' },
-                    { singular: 'kind', plural: 'kinderen' }, { singular: 'lamp', plural: 'lampen' },
-                    { singular: 'tijd', plural: 'tijden' }, { singular: 'deur', plural: 'deuren' },
-                    { singular: 'raam', plural: 'ramen' }, { singular: 'auto', plural: 'auto\'s' },
-                    { singular: 'foto', plural: 'foto\'s' }, { singular: 'video', plural: 'video\'s' },
-                    { singular: 'hobby', plural: 'hobby\'s' }, { singular: 'baby', plural: 'baby\'s' },
-                    { singular: 'bureau', plural: 'bureaus' }, { singular: 'cafe', plural: 'cafe' },
-                    { singular: 'twee', plural: 'tweeën' }, { singular: 'drie', plural: 'drieën' }
-                ]
-            },
-            'verkleinwoorden': { // Diminutives
-                title: "Grammatica: Verkleinwoorden",
-                description: "Geef het verkleinwoord van het woord.",
-                words: [
-                    { base: 'huis', diminutive: 'huisje' }, { base: 'stoel', diminutive: 'stoeltje' },
-                    { base: 'kind', diminutive: 'kindje' }, { base: 'boom', diminutive: 'boompje' },
-                    { base: 'boek', diminutive: 'boekje' }, { base: 'tafel', diminutive: 'tafeltje' },
-                    { base: 'stad', diminutive: 'stadje' }, { base: 'ei', diminutive: 'eitje' },
-                    { base: 'mes', diminutive: 'mesje' }, { base: 'lepel', diminutive: 'lepeltje' },
-                    { base: 'broek', diminutive: 'broekje' }, { base: 'jas', diminutive: 'jasje' },
-                    { base: 'telefoon', diminutive: 'telefoontje' }, { base: 'hand', diminutive: 'handje' },
-                    { base: 'vogel', diminutive: 'vogeltje' }, { base: 'dier', diminutive: 'diertje' },
-                    { base: 'school', diminutive: 'schooltje' }, { base: 'leraar', diminutive: 'leraartje' },
-                    { base: 'leerling', diminutive: 'leerlingetje' }, { base: 'muis', diminutive: 'muisje' },
-                    { base: 'dorp', diminutive: 'dorpje' }, { base: 'bloem', diminutive: 'bloempje' },
-                    { base: 'schoen', diminutive: 'schoentje' }, { base: 'tas', diminutive: 'tasje' },
-                    { base: 'doos', diminutive: 'doosje' }, { base: 'krant', diminutive: 'krantje' },
-                    { base: 'glas', diminutive: 'glaasje' }, { base: 'pad', diminutive: 'paadje' },
-                    { base: 'been', diminutive: 'beentje' }, { base: 'boom', diminutive: 'boompje' },
-                    { base: 'bloem', diminutive: 'bloempje' }, { base: 'fiets', diminutive: 'fietsje' },
-                    { base: 'lamp', diminutive: 'lampje' }, { base: 'ring', diminutive: 'ringetje' },
-                    { base: 'ring', diminutive: 'ringetje' }, { base: 'tong', diminutive: 'tongetje' },
-                    { base: 'vlieg', diminutive: 'vliegje' }, { base: 'pen', diminutive: 'pennetje' },
-                    { base: 'bal', diminutive: 'balletje' }, { base: 'man', diminutive: 'mannetje' },
-                    { base: 'zon', diminutive: 'zonnetje' }, { base: 'kat', diminutive: 'katje' },
-                    { base: 'pop', diminutive: 'popje' }, { base: 'muur', diminutive: 'muurtje' },
-                    { base: 'bed', diminutive: 'bedje' }, { base: 'blad', diminutive: 'blaadje' }
-                ]
-            },
-            'idiomen': { // Idioms
-                title: "Woordenschat: Idiomen en Spreekwoorden",
-                description: "Vul het ontbrekende woord in om het idioom compleet te maken.",
-                idioms: [
-                    { question: "De kat uit de ... kijken.", answer: "boom" },
-                    { question: "Dat is een druppel op een gloeiende ...", answer: "plaat" },
-                    { question: "Oost, west, thuis ... best.", answer: "thuis" },
-                    { question: "Alle begin is ...", answer: "moeilijk" },
-                    { question: "De appel valt niet ver ... de boom.", answer: "van" },
-                    { question: "Zo trots als een ...", answer: "pauw" },
-                    { question: "Zo sluw als een ...", answer: "vos" },
-                    { question: "Zo sterk als een ...", answer: "beer" },
-                    { question: "Nu komt de aap uit de ...", answer: "mouw" },
-                    { question: "Een speld in een ... zoeken.", answer: "hooiberg" },
-                    { question: "Een hekel aan iemand hebben.", answer: "hekel" },
-                    { question: "Een vogel in de hand is beter dan tien ... in de lucht.", answer: "in" },
-                    { question: "Het beste paard van ...", answer: "stal" },
-                    { question: "Met de noorderzon ...", answer: "vertrokken" },
-                    { question: "Iets onder de knie hebben.", answer: "onder" },
-                    { question: "De puntjes op de ... zetten.", answer: "i" },
-                    { question: "In de ... van je leven.", answer: "bloei" },
-                    { question: "In de wolken zijn.", answer: "in" },
-                    { question: "Een ... op het oog hebben.", answer: "knipoog" },
-                    { question: "De kogel is door de ...", answer: "kerk" }
-                ]
-            },
-            'woordsoorten': { // Parts of Speech
-                title: "Grammatica: Woordsoorten",
-                description: "Welke woordsoort is het dikgedrukte woord?",
-                questions: [
-                    { sentence: "De <b>rode</b> auto rijdt snel.", answer: "bijvoeglijk naamwoord" },
-                    { sentence: "Ik <b>loop</b> naar huis.", answer: "werkwoord" },
-                    { sentence: "<b>De</b> hond rent hard.", answer: "lidwoord" },
-                    { sentence: "Hij is een <b>jongen</b>.", answer: "zelfstandig naamwoord" },
-                    { sentence: "Ik eet een appel <b>en</b> een peer.", answer: "voegwoord" },
-                    { sentence: "De jongen <b>rent</b> snel.", answer: "werkwoord" },
-                    { sentence: "De <b>kat</b> ligt op de bank.", answer: "zelfstandig naamwoord" },
-                    { sentence: "Zij <b>gaat</b> naar school.", answer: "werkwoord" },
-                    { sentence: "De <b>boeken</b> staan in de kast.", answer: "zelfstandig naamwoord" },
-                    { sentence: "De <b>mooie</b> bloem groeit.", answer: "bijvoeglijk naamwoord" },
-                    { sentence: "De <b>snel</b> loper wint.", answer: "bijwoord" },
-                    { sentence: "Hij zingt <b>prachtig</b>.", answer: "bijwoord" },
-                    { sentence: "Ik drink <b>een</b> kopje thee.", answer: "lidwoord" },
-                    { sentence: "De kinderen spelen <b>in</b> de tuin.", answer: "voorzetsel" },
-                    { sentence: "<b>Zij</b> is mijn zus.", answer: "persoonlijk voornaamwoord" },
-                    { sentence: "Dat is <b>mijn</b> fiets.", answer: "bezittelijk voornaamwoord" },
-                    { sentence: "<b>Wie</b> is daar?", answer: "vraagwoord" },
-                    { sentence: "<b>Het</b> regent hard.", answer: "persoonlijk voornaamwoord" },
-                    { sentence: "De <b>grote</b> hond blaft.", answer: "bijvoeglijk naamwoord" },
-                    { sentence: "Hij wandelt <b>door</b> het park.", answer: "voorzetsel" }
-                ]
-            },
-            'ontkenningen': { // Negations
-                title: "Grammatica: Ontkenningen",
-                description: "Maak de zin negatief door 'niet' of 'geen' in te vullen.",
-                questions: [
-                    { question: "Ik heb ... tijd.", answer: "geen" },
-                    { question: "Zij spreekt ... met hem.", answer: "niet" },
-                    { question: "Hij heeft ... huisdier.", answer: "geen" },
-                    { question: "Wij gaan ... naar school.", answer: "niet" },
-                    { question: "Er is ... melk meer in de koelkast.", answer: "geen" },
-                    { question: "Ik geloof het ...", answer: "niet" },
-                    { question: "De leraar geeft ... huiswerk.", answer: "geen" },
-                    { question: "Zij is ... bang.", answer: "niet" },
-                    { question: "Ik heb ... geld op zak.", answer: "geen" },
-                    { question: "Hij heeft ... zin om te studeren.", answer: "geen" },
-                    { question: "We hebben ... fruit meer.", answer: "geen" },
-                    { question: "Ik ben ... tevreden.", answer: "niet" },
-                    { question: "De leraar is ... in de klas.", answer: "niet" },
-                    { question: "De kinderen hebben ... koekjes.", answer: "geen" },
-                    { question: "Hij is ... getrouwd.", answer: "niet" },
-                    { question: "Het heeft ... geregend.", answer: "niet" },
-                    { question: "Zij heeft ... broers of zussen.", answer: "geen" },
-                    { question: "Ik heb ... honger.", answer: "geen" },
-                    { question: "Hij wil ... naar de film.", answer: "niet" },
-                    { question: "We hebben ... tijd om te rusten.", answer: "geen" }
-                ]
-            },
-            'bonus_question': {
-                title: "Bonusvraag!",
-                description: "Beantwoord deze vraag correct en verdien 20 punten!",
-                questions: [
-                    { question: "Welke Nederlandse rivier mondt uit in de Noordzee bij Hoek van Holland?", answer: "Nieuwe Waterweg" },
-                    { question: "Hoe heet het grootste eiland van de Waddeneilanden?", answer: "Texel" },
-                    { question: "Wat is de Nederlandse benaming voor de beroemde Gouden Eeuw?", answer: "Gouden Eeuw" },
-                    { question: "Welke kleur staat symbool voor het Nederlands Koningshuis?", answer: "Oranje" },
-                    { question: "Hoe heet de windmolen in Amsterdam die tot de hoogste windmolens ter wereld behoort?", answer: "De Gooyer" },
-                    { question: "Wat is de bijnaam van Amsterdam?", answer: "Mokum" },
-                    { question: "Welk Nederlands gerecht wordt traditioneel gegeten met stamppot?", answer: "worst" },
-                    { question: "In welke stad staat het Vrijthof?", answer: "Maastricht" },
-                    { question: "Hoeveel provincies telt Nederland?", answer: "12" },
-                    { question: "Wat is de hoofdstad van Nederland?", answer: "Amsterdam" },
-                    { question: "In welke Nederlandse provincie ligt de stad 's-Hertogenbosch?", answer: "Noord-Brabant" },
-                    { question: "Welk dier staat centraal in het spreekwoord 'Een ezel stoot zich geen twee keer aan dezelfde steen'?", answer: "ezel" },
-                    { question: "Hoe heet het gebouw in Den Haag waar de Nederlandse regering vergadert?", answer: "Binnenhof" },
-                    { question: "Wat is de naam van de Nederlandse nationale luchthaven?", answer: "Schiphol" },
-                    { question: "Welk kunstwerk van Rembrandt is het bekendst?", answer: "Nachtwacht" },
-                    { question: "Hoe heet de dam die het IJsselmeer van de Waddenzee scheidt?", answer: "Afsluitdijk" },
-                    { question: "Wat is de naam van de bekende Nederlandse schilder die landschappen maakte met windmolens?", answer: "Mondriaan" },
-                    { question: "Welk Nederlands gerecht bestaat uit aardappelen, groenten en vlees?", answer: "stamppot" },
-                    { question: "Hoe heet de grootste Nederlandse haven?", answer: "Rotterdamse haven" },
-                    { question: "Welke Nederlandse stad wordt ook wel de 'Lichtstad' genoemd?", answer: "Eindhoven" }
-                ]
-            }
-        };
+            // Globale variabele voor applicatiestatus
+            let appState = {
+                classes: [],
+                selectedClassIndex: null,
+                registeredNames: [],
+                isTeacherLoggedIn: false,
+                currentPoints: 0,
+                userState: {}
+            };
 
-        const subjects = ['ik', 'jij', 'hij', 'zij', 'wij', 'jullie', 'zij'];
+            // Functie om de applicatiestatus op te slaan (in-memory, voor demonstratie)
+            const saveState = () => {
+                const userName = loginInput.value.trim();
+                if (userName) {
+                    appState.userState[userName] = {
+                        points: appState.currentPoints,
+                    };
+                }
+            };
 
-        // Utility function to get a random item from an array
-        function getRandomItem(arr) {
-            return arr[Math.floor(Math.random() * arr.length)];
-        }
-
-        // Function to shuffle an array
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-        }
-
-        // Function to create quiz questions for Tegenwoordige Tijd (Present Tense)
-        function createTTQuiz() {
-            const verbstem = getRandomItem(quizData.tt.verbstems);
-            const questionVerb = verbstem.substring(0, verbstem.length - 2);
-            let subject = getRandomItem(subjects);
-            let ending = '';
-
-            if (subject === 'ik' || subject === 'jij' || subject === 'hij' || subject === 'zij') {
-                ending = 't';
-            } else if (subject === 'jullie' || subject === 'wij' || subject === 'zij') {
-                ending = 'en';
-            }
-
-            const answer = questionVerb + ending;
-            const fullSentence = `${subject.charAt(0).toUpperCase() + subject.slice(1)} ... naar de markt. (werkwoord: ${verbstem})`;
-            return [{ question: fullSentence, answer: answer }];
-        }
-
-        // Function to create quiz questions for Verleden Tijd (Past Tense)
-        function createVTQuiz() {
-            const verb = getRandomItem(quizData.vt.verbs);
-            const subject = getRandomItem(subjects);
-            const questionSentence = `${subject.charAt(0).toUpperCase() + subject.slice(1)} ... naar een film. (werkwoord: ${verb.inf})`;
-            return [{ question: questionSentence, answer: verb.vt }];
-        }
-
-        // Function to create quiz questions for Voltooid Deelwoord (Past Participle)
-        function createVDQuiz() {
-            const verb = getRandomItem(quizData.vd.verbs);
-            const subject = getRandomItem(subjects);
-            const questionSentence = `${subject.charAt(0).toUpperCase() + subject.slice(1)} heeft ... van het boek. (werkwoord: ${verb.inf})`;
-            return [{ question: questionSentence, answer: verb.vd }];
-        }
-
-        // Function to create quiz questions for Forzetsels (Prepositions)
-        function createVoorzetselsQuiz() {
-            const sentence = getRandomItem(quizData.voorzetsels.sentences);
-            return [{ question: sentence.question, answer: sentence.answer }];
-        }
-
-        // Function to create quiz questions for Spelling
-        function createSpellingQuiz() {
-            const word = getRandomItem(quizData.spelling.words);
-            return [{ question: `Spel het woord: ${word.substring(0, word.length - 2)}...`, answer: word }];
-        }
-
-        // Function to create quiz questions for Meervoud (Plural)
-        function createMeervoudQuiz() {
-            const word = getRandomItem(quizData.meervoud.words);
-            return [{ question: `Wat is het meervoud van: ${word.singular}?`, answer: word.plural }];
-        }
-
-        // Function to create quiz questions for Verkleinwoorden (Diminutives)
-        function createVerkleinwoordenQuiz() {
-            const word = getRandomItem(quizData.verkleinwoorden.words);
-            return [{ question: `Wat is het verkleinwoord van: ${word.base}?`, answer: word.diminutive }];
-        }
-
-        // Function to create quiz questions for Idiomen (Idioms)
-        function createIdiomenQuiz() {
-            const idiom = getRandomItem(quizData.idiomen.idioms);
-            return [{ question: `Vul aan: ${idiom.question}`, answer: idiom.answer }];
-        }
-
-        // Function to create quiz questions for Woordsoorten (Parts of Speech)
-        function createWoordsoortenQuiz() {
-            const question = getRandomItem(quizData.woordsoorten.questions);
-            return [{ question: `Welke woordsoort is het vetgedrukte woord? ${question.sentence}`, answer: question.answer }];
-        }
-
-        // Function to create quiz questions for Ontkenningen (Negations)
-        function createOntkenningenQuiz() {
-            const question = getRandomItem(quizData.ontkenningen.questions);
-            return [{ question: `Vul 'niet' of 'geen' in: ${question.question}`, answer: question.answer }];
-        }
-
-        // Function to create a bonus question
-        function createBonusQuestion() {
-            const question = getRandomItem(quizData.bonus_question.questions);
-            return [{ question: question.question, answer: question.answer }];
-        }
-
-
-        // Function to get quiz data based on category
-        function getQuizData(category) {
-            switch (category) {
-                case 'tt':
-                    return createTTQuiz();
-                case 'vt':
-                    return createVTQuiz();
-                case 'vd':
-                    return createVDQuiz();
-                case 'voorzetsels':
-                    return createVoorzetselsQuiz();
-                case 'zinsontleding':
-                    return [getRandomItem(quizData.zinsontleding.sentences)];
-                case 'spelling':
-                    return createSpellingQuiz();
-                case 'meervoud':
-                    return createMeervoudQuiz();
-                case 'verkleinwoorden':
-                    return createVerkleinwoordenQuiz();
-                case 'idiomen':
-                    return createIdiomenQuiz();
-                case 'woordsoorten':
-                    return createWoordsoortenQuiz();
-                case 'ontkenningen':
-                    return createOntkenningenQuiz();
-                case 'bonus_question':
-                    return createBonusQuestion();
-                default:
-                    return [{ question: "Geen categorie gevonden.", answer: "" }];
-            }
-        }
-
-        // Function to start a new quiz task
-        function startNewTask(category) {
-            hideAllScreens();
-            const quizContent = getQuizData(category);
-            currentTaskAnswers = quizContent.map(q => q.answer.toLowerCase());
-
-            const taskContentDiv = document.getElementById('task-content');
-            taskContentDiv.innerHTML = '';
-            currentTaskInputs = [];
-
-            document.getElementById('task-title').textContent = quizData[category].title;
-            document.getElementById('task-description').textContent = quizData[category].description;
-
-            quizContent.forEach((item, index) => {
-                const quizItem = document.createElement('div');
-                quizItem.className = 'quiz-item';
-                quizItem.innerHTML = `
-                    <label for="input-${index}">${item.question}</label>
-                    <input type="text" id="input-${index}" placeholder="Vul je antwoord in">
-                    <span id="feedback-${index}" class="feedback"></span>
-                `;
-                taskContentDiv.appendChild(quizItem);
-                currentTaskInputs.push(document.getElementById(`input-${index}`));
-            });
-
-            document.getElementById('task-content').style.display = 'block';
-            document.getElementById('task-buttons').style.display = 'flex';
-        }
-
-        // Function to check the answers of the current task
-        function checkCurrentTask() {
-            let allCorrect = true;
-            let pointsGained = 0;
-
-            currentTaskInputs.forEach((input, index) => {
-                const feedbackSpan = document.getElementById(`feedback-${index}`);
-                const userAnswer = input.value.trim().toLowerCase();
-                const correctAnswer = currentTaskAnswers[index];
-
-                if (userAnswer === correctAnswer) {
-                    feedbackSpan.textContent = 'Correct!';
-                    feedbackSpan.className = 'feedback correct';
-                    pointsGained++;
+            // Functie om de applicatiestatus te laden
+            const loadState = (userName) => {
+                if (appState.userState[userName]) {
+                    appState.currentPoints = appState.userState[userName].points;
+                    pointsEl.textContent = appState.currentPoints;
                 } else {
-                    feedbackSpan.textContent = `Fout. Het correcte antwoord is: ${correctAnswer}`;
-                    feedbackSpan.className = 'feedback incorrect';
-                    allCorrect = false;
+                    appState.currentPoints = 0;
+                    pointsEl.textContent = appState.currentPoints;
+                }
+            };
+
+            // Functie voor het tonen van een modaal venster
+            const showMessage = (message, onOk = () => {}) => {
+                const modalHtml = `
+                    <div class="modal">
+                        <div class="modal-content">
+                            <p class="text-lg">${message}</p>
+                            <button id="close-modal" class="blue-btn mt-4 px-6 py-2">OK</button>
+                        </div>
+                    </div>
+                `;
+                const modal = document.createElement('div');
+                modal.innerHTML = modalHtml;
+                document.body.appendChild(modal);
+                document.getElementById('close-modal').addEventListener('click', () => {
+                    modal.remove();
+                    onOk();
+                });
+            };
+
+            // Functie om de punten bij te werken
+            const updatePoints = (amount) => {
+                appState.currentPoints += amount;
+                pointsEl.textContent = appState.currentPoints;
+                saveState();
+            };
+
+            // Functie voor het inloggen
+            const login = (id, name, isTeacher = false) => {
+                if (appState.registeredNames.includes(name) && !isTeacher) {
+                    loadState(name);
+                } else if (!isTeacher) {
+                    appState.registeredNames.push(name);
+                }
+                
+                userIdEl.textContent = `${name} (${id})`;
+                loginScreen.classList.add('hidden');
+                mainContent.classList.remove('hidden');
+                appState.isTeacherLoggedIn = isTeacher;
+
+                if (isTeacher) {
+                    teacherSection.classList.remove('hidden');
+                    studentOnlyContent.classList.add('hidden');
+                    pointsDisplay.classList.add('hidden');
+                } else {
+                    teacherSection.classList.add('hidden');
+                    studentOnlyContent.classList.remove('hidden');
+                    pointsDisplay.classList.remove('hidden');
+                }
+            };
+
+            // Login Event Listeners
+            startBtn.addEventListener('click', () => {
+                const userName = loginInput.value.trim();
+                if (userName) {
+                    const userId = 'user-' + Math.random().toString(36).substring(2, 10);
+                    login(userId, userName);
+                } else {
+                    showMessage('Voer een naam in om te beginnen.');
                 }
             });
 
-            // If all answers are correct, add points
-            if (allCorrect) {
-                const bonusPoints = pointsGained * pointDoublerStacks;
-                const totalPoints = pointsGained + bonusPoints;
-                updatePoints(totalPoints);
-                showMessageBox('Goed gedaan!', `Al je antwoorden zijn correct! Je hebt ${pointsGained} punten verdiend. ` + (pointDoublerStacks > 0 ? `Je puntenverdubbelaar heeft je nog eens ${bonusPoints} extra punten gegeven!` : ''));
-            } else {
-                showMessageBox('Niet alle antwoorden zijn correct.', `Je hebt ${pointsGained} van de ${currentTaskAnswers.length} vragen correct beantwoord.`);
-            }
-        }
+            googleLoginBtn.addEventListener('click', () => {
+                const userId = 'google-' + Math.random().toString(36).substring(2, 10);
+                login(userId, 'Google Gebruiker');
+            });
 
-        // Function to show category selection screen
-        function showCategorySelection() {
-            document.getElementById('task-content').style.display = 'none';
-            document.getElementById('task-buttons').style.display = 'none';
-            document.getElementById('category-selection').style.display = 'grid';
-            document.getElementById('task-title').textContent = 'Begin een taak!';
-            document.getElementById('task-description').textContent = 'Klik op een categorie om te beginnen met oefenen!';
-        }
+            microsoftLoginBtn.addEventListener('click', () => {
+                const userId = 'microsoft-' + Math.random().toString(36).substring(2, 10);
+                login(userId, 'Microsoft Gebruiker');
+            });
 
-        // Function to show a custom message box
-        function showMessageBox(title, message) {
-            document.getElementById('message-box-title').textContent = title;
-            document.getElementById('message-box-text').textContent = message;
-            document.getElementById('message-box-overlay').style.display = 'block';
-            document.getElementById('message-box').style.display = 'block';
-        }
+            teacherLoginBtn.addEventListener('click', () => {
+                teacherLoginModal.classList.remove('hidden');
+            });
 
-        // Function to close the message box
-        function closeMessageBox() {
-            document.getElementById('message-box-overlay').style.display = 'none';
-            document.getElementById('message-box').style.display = 'none';
-        }
-
-        // Function to buy an item from the shop
-        function buyItem(item, cost) {
-            if (points >= cost) {
-                updatePoints(-cost);
-                switch (item) {
-                    case 'badge':
-                        if (!badgeUnlocked) {
-                            badgeUnlocked = true;
-                            unlockedItems.push('Digitale Badge "Grammatica Expert"');
-                            updateStatus('badge', 'Ontgrendeld!');
-                            showMessageBox('Gekocht!', 'Je hebt de digitale badge "Grammatica Expert" gekocht!');
-                        } else {
-                            showMessageBox('Al Gekocht', 'Je hebt deze badge al ontgrendeld.');
-                        }
-                        break;
-                    case 'joke':
-                        jokeUnlocked = true;
-                        const joke = getRandomItem([
-                            "Wat is het toppunt van geduld? Wachten op een ezel die de trap op loopt.",
-                            "Wat is het verschil tussen een lepel en een theelepel? Een lepel is groter dan een theelepel.",
-                            "Wat is de favoriete film van een bakker? De ringen van de broodheer."
-                        ]);
-                        document.getElementById('joke-content').textContent = joke;
-                        document.getElementById('joke-content').style.display = 'block';
-                        showMessageBox('Gekocht!', 'Hier is een mop: ' + joke);
-                        break;
-                    case 'doubler':
-                        pointDoublerStacks++;
-                        unlockedItems.push('Punten-Verdubbelaar');
-                        updateStatus('doubler', `Actief! Stapels: ${pointDoublerStacks}`);
-                        showMessageBox('Gekocht!', 'De puntenverdubbelaar is nu actief! Je verdient dubbele punten voor de volgende quiz.');
-                        break;
-                    case 'sticker':
-                        stickerUnlocked = true;
-                        unlockedItems.push('Virtuele Sticker "Goed Bezig!"');
-                        updateStatus('sticker', 'Ontgrendeld!');
-                        showMessageBox('Gekocht!', 'Je hebt de virtuele sticker "Goed Bezig!" gekocht!');
-                        break;
-                    case 'bonus_question':
-                        startNewTask('bonus_question');
-                        bonusQuestionUnlocked = true;
-                        updateStatus('bonus_question', 'Klaar!');
-                        break;
+            teacherLoginSubmitBtn.addEventListener('click', () => {
+                const name = teacherNameInput.value.trim();
+                const password = teacherPasswordInput.value.trim();
+                if (name && password === 'docent123') {
+                    const userId = 'docent-' + Math.random().toString(36).substring(2, 10);
+                    login(userId, name, true);
+                    teacherLoginModal.classList.add('hidden');
+                    teacherNameInput.value = '';
+                    teacherPasswordInput.value = '';
+                } else {
+                    showMessage('Ongeldige naam of wachtwoord.');
                 }
-                saveUserData(); // Save changes after purchase
-                renderUnlockedItems();
-            } else {
-                showMessageBox('Onvoldoende punten', 'Je hebt niet genoeg punten om dit item te kopen.');
-            }
-        }
+            });
 
-        // Function to update the status of an item in the shop
-        function updateStatus(item, status) {
-            const statusElement = document.getElementById(`${item}-status`);
-            if (statusElement) {
-                statusElement.textContent = status;
-                statusElement.className = 'unlocked';
-            }
-        }
+            teacherLoginCloseBtn.addEventListener('click', () => {
+                teacherLoginModal.classList.add('hidden');
+            });
 
-        // Function to render unlocked items in the dedicated section
-        function renderUnlockedItems() {
-            const list = document.getElementById('unlocked-items-list');
-            list.innerHTML = '';
-            if (unlockedItems.length > 0) {
-                unlockedItems.forEach(item => {
-                    const listItem = document.createElement('li');
-                    listItem.textContent = item;
-                    list.appendChild(listItem);
-                });
-                document.getElementById('unlocked-items-section').style.display = 'block';
-            } else {
-                document.getElementById('unlocked-items-section').style.display = 'none';
-            }
-        }
+            // Dark Mode Toggle
+            themeToggleBtn.addEventListener('click', () => {
+                body.classList.toggle('dark');
+                const isDarkMode = body.classList.contains('dark');
+                if (isDarkMode) {
+                    sunIcon.classList.add('hidden');
+                    moonIcon.classList.remove('hidden');
+                } else {
+                    sunIcon.classList.remove('hidden');
+                    moonIcon.classList.add('hidden');
+                }
+            });
 
-        // Function to update user's points and display
-        function updatePoints(amount) {
-            points += amount;
-            document.getElementById('points-value').textContent = points;
-            saveUserData();
-        }
-
-        // Function to hide all quiz screens and show the category selection
-        function hideAllScreens() {
-            document.getElementById('category-selection').style.display = 'none';
-            document.getElementById('task-content').style.display = 'none';
-            document.getElementById('task-buttons').style.display = 'none';
-        }
-
-        // Firebase Initialization and User Data Handling
-        // Global variables provided by the Canvas environment
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-        
-        // Initialize Firebase services and set up auth listener
-        function initializeFirebase() {
-            if (Object.keys(firebaseConfig).length > 0) {
-                app = initializeApp(firebaseConfig);
-                auth = getAuth(app);
-                db = getFirestore(app);
-
-                onAuthStateChanged(auth, async (user) => {
-                    if (user) {
-                        userId = user.uid;
-                        document.getElementById('user-id').textContent = userId;
-                        userDocRef = doc(db, `artifacts/${appId}/users/${userId}/data`, 'profile');
-                        isAuthReady = true;
-                        loadUserData();
-                    } else {
-                        // Sign in anonymously if no custom token is available
-                        if (!initialAuthToken) {
-                            try {
-                                const anonUserCred = await signInAnonymously(auth);
-                                userId = anonUserCred.user.uid;
-                                document.getElementById('user-id').textContent = userId;
-                                userDocRef = doc(db, `artifacts/${appId}/users/${userId}/data`, 'profile');
-                                isAuthReady = true;
-                                loadUserData();
-                            } catch (error) {
-                                console.error("Anonymous sign-in failed:", error);
-                            }
+            // Navigatie tussen student-secties
+            navButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const target = btn.dataset.target;
+                    contentSections.forEach(section => {
+                        if (section.id === target) {
+                            section.classList.remove('hidden');
+                        } else {
+                            section.classList.add('hidden');
                         }
-                    }
+                    });
                 });
+            });
 
-                // Sign in with custom token if available
-                if (initialAuthToken) {
-                    signInWithCustomToken(auth, initialAuthToken).catch((error) => {
-                        console.error("Custom token sign-in failed:", error);
+            // Teacher Section Logic
+            createClassBtn.addEventListener('click', () => {
+                const className = classNameInput.value.trim();
+                if (className) {
+                    appState.classes.push({ name: className, students: [], tasks: [] });
+                    classNameInput.value = '';
+                    renderClasses();
+                }
+            });
+
+            const renderClasses = () => {
+                classList.innerHTML = '';
+                appState.classes.forEach((classObj, index) => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = classObj.name;
+                    listItem.className = 'bg-white p-3 rounded-md shadow-sm dark:bg-gray-700 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors';
+                    listItem.dataset.index = index;
+                    classList.appendChild(listItem);
+                });
+            };
+
+            classList.addEventListener('click', (event) => {
+                const target = event.target;
+                if (target.tagName === 'LI') {
+                    appState.selectedClassIndex = parseInt(target.dataset.index);
+                    const selectedClass = appState.classes[appState.selectedClassIndex];
+                    teacherClassTitle.textContent = `Klas beheren: ${selectedClass.name}`;
+                    renderStudents();
+                    renderTeacherTasks();
+                    classView.classList.add('hidden');
+                    teacherClassManagement.classList.remove('hidden');
+                }
+            });
+
+            addStudentBtn.addEventListener('click', () => {
+                const studentName = addStudentInput.value.trim();
+                if (studentName && appState.selectedClassIndex !== null) {
+                    appState.classes[appState.selectedClassIndex].students.push(studentName);
+                    addStudentInput.value = '';
+                    renderStudents();
+                }
+            });
+
+            assignTaskBtn.addEventListener('click', () => {
+                const task = taskInput.value.trim();
+                if (task && appState.selectedClassIndex !== null) {
+                    appState.classes[appState.selectedClassIndex].tasks.push({ description: task, completed: false });
+                    taskInput.value = '';
+                    renderTeacherTasks();
+                } else if (appState.selectedClassIndex === null) {
+                    showMessage("Selecteer eerst een klas om een taak aan toe te wijzen.");
+                } else {
+                    showMessage("Voer een taakbeschrijving in.");
+                }
+            });
+
+            const renderTeacherTasks = () => {
+                teacherTaskList.innerHTML = '';
+                if (appState.selectedClassIndex !== null) {
+                    const selectedClass = appState.classes[appState.selectedClassIndex];
+                    selectedClass.tasks.forEach(task => {
+                        const listItem = document.createElement('li');
+                        listItem.textContent = task.description;
+                        listItem.className = 'bg-gray-200 p-3 rounded-md shadow-sm dark:bg-gray-600';
+                        teacherTaskList.appendChild(listItem);
                     });
                 }
-            } else {
-                console.error("Firebase config is not provided.");
-            }
-        }
-
-        // Load user data from Firestore
-        function loadUserData() {
-            if (isAuthReady && userDocRef) {
-                onSnapshot(userDocRef, (docSnap) => {
-                    if (docSnap.exists()) {
-                        const data = docSnap.data();
-                        points = data.points || 0;
-                        badgeUnlocked = data.badgeUnlocked || false;
-                        jokeUnlocked = data.jokeUnlocked || false;
-                        pointDoublerStacks = data.pointDoublerStacks || 0;
-                        stickerUnlocked = data.stickerUnlocked || false;
-                        unlockedItems = data.unlockedItems || [];
-                        
-                        document.getElementById('points-value').textContent = points;
-                        if (badgeUnlocked) updateStatus('badge', 'Ontgrendeld!');
-                        if (jokeUnlocked) updateStatus('joke', 'Ontgrendeld!');
-                        if (pointDoublerStacks > 0) updateStatus('doubler', `Actief! Stapels: ${pointDoublerStacks}`);
-                        if (stickerUnlocked) updateStatus('sticker', 'Ontgrendeld!');
-                        
-                        renderUnlockedItems();
-                    } else {
-                        // If no document exists, create a default one
-                        saveUserData();
-                    }
-                }, (error) => {
-                    console.error("Error listening to document changes: ", error);
-                });
-            } else {
-                console.warn("Authentication not ready. Cannot load user data.");
-            }
-        }
-
-        // Save user data to Firestore
-        async function saveUserData() {
-            if (isAuthReady && userDocRef) {
-                try {
-                    const userData = {
-                        points,
-                        badgeUnlocked,
-                        jokeUnlocked,
-                        pointDoublerStacks,
-                        stickerUnlocked,
-                        unlockedItems
-                    };
-                    await setDoc(userDocRef, userData, { merge: true });
-                } catch (e) {
-                    console.error("Error writing document: ", e);
+            };
+            
+            requestJoinBtn.addEventListener('click', () => {
+                const className = classJoinInput.value.trim();
+                const foundClass = appState.classes.find(c => c.name === className);
+                if (foundClass) {
+                    joinMessage.textContent = `Verzoek om deel te nemen aan klas "${className}" is verstuurd! De docent moet je nog accepteren.`;
+                    joinMessage.classList.remove('hidden');
+                    // In a real app, this would send a request to the teacher.
+                    // For this simulation, we'll auto-accept and show the tasks.
+                    renderStudentTasks(foundClass.tasks);
+                } else {
+                    joinMessage.textContent = 'Deze klasnaam bestaat niet.';
+                    joinMessage.classList.remove('hidden');
                 }
-            }
-        }
+                classJoinInput.value = '';
+            });
 
-        // Initialize the app on window load
-        window.onload = function() {
-            initializeFirebase();
-        };
+            const renderStudentTasks = (tasks) => {
+                assignedTasksList.innerHTML = '';
+                if (tasks.length > 0) {
+                    tasks.forEach((task, index) => {
+                        const listItem = document.createElement('li');
+                        listItem.className = 'bg-gray-200 p-3 rounded-md shadow-sm dark:bg-gray-600 flex justify-between items-center';
+                        listItem.innerHTML = `
+                            <span>${task.description}</span>
+                            <button data-index="${index}" class="complete-task-btn bg-blue-600 text-white px-4 py-1 rounded-full text-sm font-bold transition hover:bg-blue-700">Voltooid</button>
+                        `;
+                        assignedTasksList.appendChild(listItem);
+                    });
 
+                    document.querySelectorAll('.complete-task-btn').forEach(button => {
+                        button.addEventListener('click', (event) => {
+                            const taskIndex = event.target.dataset.index;
+                            const task = tasks[taskIndex];
+                            if (!task.completed) {
+                                task.completed = true;
+                                updatePoints(10); // Verdien 10 punten per taak
+                                showMessage(`Goed gedaan! Je hebt de taak voltooid en 10 punten verdiend.`, () => {
+                                    event.target.disabled = true;
+                                    event.target.textContent = 'Voltooid ✅';
+                                    event.target.classList.add('bg-green-600', 'hover:bg-green-700');
+                                    event.target.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                                });
+                            }
+                        });
+                    });
+                } else {
+                     assignedTasksList.innerHTML = '<li class="text-gray-500">Geen taken toegewezen.</li>';
+                }
+            };
+
+            const renderStudents = () => {
+                studentList.innerHTML = '';
+                if (appState.selectedClassIndex !== null) {
+                    const selectedClass = appState.classes[appState.selectedClassIndex];
+                    selectedClass.students.forEach(student => {
+                        const listItem = document.createElement('li');
+                        listItem.textContent = student;
+                        listItem.className = 'bg-white p-3 rounded-md shadow-sm dark:bg-gray-700';
+                        studentList.appendChild(listItem);
+                    });
+                }
+            };
+
+            backToClassesBtn.addEventListener('click', () => {
+                teacherClassManagement.classList.add('hidden');
+                classView.classList.remove('hidden');
+                appState.selectedClassIndex = null;
+            });
+
+            // Lesson Logic
+            const startVocabularyLesson = () => {
+                const category = vocabCategorySelector.value;
+                currentVocabLesson = [...vocabularyLessons[category]]; // Kopieer de array om te manipuleren
+                shuffleArray(currentVocabLesson); // Shuffle de woorden
+                currentWordIndex = 0;
+                displayCurrentWord();
+                translationResultEl.classList.add('hidden');
+            };
+
+            const displayCurrentWord = () => {
+                if (currentWordIndex < currentVocabLesson.length) {
+                    currentWordEl.textContent = currentVocabLesson[currentWordIndex].en;
+                    translationInput.value = '';
+                } else {
+                    showMessage("Gefeliciteerd! Je hebt alle woorden voltooid. Je hebt een bonus van 20 punten verdiend!", () => {
+                        updatePoints(20);
+                        startVocabularyLesson();
+                    });
+                }
+            };
+
+            checkTranslationBtn.addEventListener('click', () => {
+                const userTranslation = translationInput.value.trim().toLowerCase();
+                const correctTranslation = currentVocabLesson[currentWordIndex].nl.toLowerCase();
+                if (userTranslation === correctTranslation) {
+                    translationResultEl.textContent = "Correct! ✅ Je hebt 5 punten verdiend.";
+                    translationResultEl.classList.remove('hidden', 'text-red-500');
+                    translationResultEl.classList.add('text-green-500');
+                    updatePoints(5);
+                    currentWordIndex++;
+                    setTimeout(displayCurrentWord, 1000);
+                } else {
+                    translationResultEl.textContent = `Onjuist! ❌ Het juiste antwoord was "${correctTranslation}". Probeer het opnieuw!`;
+                    translationResultEl.classList.remove('hidden', 'text-green-500');
+                    translationResultEl.classList.add('text-red-500');
+                }
+            });
+
+            vocabCategorySelector.addEventListener('change', startVocabularyLesson);
+
+            // Quiz Logic
+            let quizScore = 0;
+            const startQuiz = () => {
+                currentQuizQuestionIndex = 0;
+                quizScore = 0;
+                quizScoreEl.textContent = '';
+                quizFeedbackEl.textContent = '';
+                nextQuizBtn.classList.add('hidden');
+                displayQuizQuestion();
+            };
+
+            const displayQuizQuestion = () => {
+                if (currentQuizQuestionIndex >= quizzes.length) {
+                    showMessage(`Quiz voltooid! Je hebt ${quizScore} van de ${quizzes.length} vragen goed beantwoord. Je hebt ${quizScore * 5} punten verdiend!`, () => {
+                        updatePoints(quizScore * 5);
+                        startQuiz(); // Herstart de quiz voor de volgende keer
+                    });
+                    return;
+                }
+
+                const currentQuiz = quizzes[currentQuizQuestionIndex];
+                questionTextEl.textContent = currentQuiz.question;
+                answerOptionsEl.innerHTML = '';
+                shuffleArray(currentQuiz.options).forEach(option => {
+                    const button = document.createElement('button');
+                    button.textContent = option;
+                    button.className = 'bg-blue-600 text-white px-4 py-2 rounded-lg transition hover:bg-blue-700';
+                    button.addEventListener('click', () => checkQuizAnswer(option));
+                    answerOptionsEl.appendChild(button);
+                });
+
+                quizFeedbackEl.textContent = '';
+                nextQuizBtn.classList.add('hidden');
+            };
+
+            const checkQuizAnswer = (selectedOption) => {
+                const currentQuiz = quizzes[currentQuizQuestionIndex];
+                if (selectedOption === currentQuiz.answer) {
+                    quizFeedbackEl.textContent = "Correct! ✅";
+                    quizFeedbackEl.classList.remove('text-red-500');
+                    quizFeedbackEl.classList.add('text-green-500');
+                    quizScore++;
+                } else {
+                    quizFeedbackEl.textContent = `Onjuist! ❌ Het juiste antwoord was "${currentQuiz.answer}".`;
+                    quizFeedbackEl.classList.remove('text-green-500');
+                    quizFeedbackEl.classList.add('text-red-500');
+                }
+                
+                quizScoreEl.textContent = `Huidige Score: ${quizScore}/${quizzes.length}`;
+                answerOptionsEl.querySelectorAll('button').forEach(btn => btn.disabled = true);
+                nextQuizBtn.classList.remove('hidden');
+            };
+
+            nextQuizBtn.addEventListener('click', () => {
+                currentQuizQuestionIndex++;
+                displayQuizQuestion();
+            });
+
+            // Hangman Logic
+            const setupHangmanGame = () => {
+                hangmanWord = hangmanWords[Math.floor(Math.random() * hangmanWords.length)].toUpperCase();
+                guessedLetters = [];
+                mistakes = 0;
+                hangmanMessageEl.textContent = '';
+                hangmanRestartBtn.classList.add('hidden');
+                updateHangmanUI();
+                createKeyboard();
+            };
+
+            const updateHangmanUI = () => {
+                hangmanDrawingEl.textContent = hangmanStages[mistakes];
+                let displayedWord = "";
+                for (const char of hangmanWord) {
+                    if (guessedLetters.includes(char)) {
+                        displayedWord += char + " ";
+                    } else {
+                        displayedWord += "_ ";
+                    }
+                }
+                hangmanWordDisplayEl.textContent = displayedWord.trim();
+            };
+
+            const createKeyboard = () => {
+                hangmanKeyboardEl.innerHTML = '';
+                for (let i = 65; i <= 90; i++) {
+                    const letter = String.fromCharCode(i);
+                    const button = document.createElement('button');
+                    button.textContent = letter;
+                    button.addEventListener('click', () => handleGuess(letter));
+                    hangmanKeyboardEl.appendChild(button);
+                }
+            };
+
+            const handleGuess = (letter) => {
+                if (guessedLetters.includes(letter)) return;
+                guessedLetters.push(letter);
+                const button = Array.from(hangmanKeyboardEl.children).find(btn => btn.textContent === letter);
+                if (button) button.disabled = true;
+
+                if (hangmanWord.includes(letter)) {
+                    updateHangmanUI();
+                    if (!hangmanWordDisplayEl.textContent.includes('_')) {
+                        winGame();
+                    }
+                } else {
+                    mistakes++;
+                    updateHangmanUI();
+                    if (mistakes >= maxMistakes) {
+                        loseGame();
+                    }
+                }
+            };
+
+            const winGame = () => {
+                hangmanMessageEl.textContent = "Gefeliciteerd! Je hebt het woord geraden! 🎉";
+                updatePoints(20);
+                showMessage("Je hebt het galgenman spel gewonnen en 20 punten verdiend!", () => {
+                    hangmanRestartBtn.classList.remove('hidden');
+                });
+                hangmanKeyboardEl.innerHTML = '';
+            };
+
+            const loseGame = () => {
+                hangmanMessageEl.textContent = `Helaas, je hebt verloren. Het woord was "${hangmanWord}".`;
+                showMessage(`Helaas, je hebt verloren. Het woord was "${hangmanWord}". Probeer het opnieuw!`, () => {
+                    hangmanRestartBtn.classList.remove('hidden');
+                });
+                hangmanKeyboardEl.innerHTML = '';
+            };
+
+            hangmanRestartBtn.addEventListener('click', setupHangmanGame);
+
+            // Kwadrantenspel Logic
+            const setupQuadrantGame = () => {
+                wordBankEl.innerHTML = '';
+                const allWords = [
+                    ...quadrantData.dieren,
+                    ...quadrantData.eten,
+                    ...quadrantData.reizen,
+                    ...quadrantData.beroepen
+                ];
+                shuffleArray(allWords);
+
+                allWords.forEach(word => {
+                    const wordEl = document.createElement('div');
+                    wordEl.textContent = word;
+                    wordEl.className = 'quadrant-word';
+                    wordEl.draggable = true;
+                    wordEl.dataset.word = word;
+                    wordBankEl.appendChild(wordEl);
+                });
+            };
+
+            const handleDragStart = (e) => {
+                dragSourceEl = e.target;
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/plain', dragSourceEl.dataset.word);
+            };
+
+            const handleDragOver = (e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+            };
+
+            const handleDragEnter = (e) => {
+                e.preventDefault();
+                e.target.closest('.quadrant-zone').classList.add('drag-over');
+            };
+
+            const handleDragLeave = (e) => {
+                e.target.closest('.quadrant-zone').classList.remove('drag-over');
+            };
+
+            const handleDrop = (e) => {
+                e.preventDefault();
+                const targetZone = e.target.closest('.quadrant-zone');
+                if (targetZone && dragSourceEl) {
+                    targetZone.classList.remove('drag-over');
+                    targetZone.appendChild(dragSourceEl);
+                    dragSourceEl = null;
+                }
+            };
+
+            const checkQuadrantAnswers = () => {
+                let correctAnswers = 0;
+                let totalWords = 0;
+                
+                const zones = document.querySelectorAll('.quadrant-zone');
+                zones.forEach(zone => {
+                    const category = zone.dataset.category;
+                    const wordsInZone = zone.querySelectorAll('.quadrant-word');
+                    totalWords += wordsInZone.length;
+
+                    wordsInZone.forEach(wordEl => {
+                        const word = wordEl.dataset.word;
+                        if (quadrantData[category].includes(word)) {
+                            correctAnswers++;
+                            wordEl.style.backgroundColor = '#10b981'; // Groen voor goed
+                        } else {
+                            wordEl.style.backgroundColor = '#ef4444'; // Rood voor fout
+                        }
+                    });
+                });
+
+                const pointsEarned = correctAnswers * 5;
+                updatePoints(pointsEarned);
+                showMessage(`Je hebt ${correctAnswers} van de ${totalWords} woorden correct geplaatst! Je hebt ${pointsEarned} punten verdiend!`, setupQuadrantGame);
+            };
+            
+            document.querySelectorAll('.quadrant-zone').forEach(zone => {
+                zone.addEventListener('dragenter', handleDragEnter);
+                zone.addEventListener('dragover', handleDragOver);
+                zone.addEventListener('dragleave', handleDragLeave);
+                zone.addEventListener('drop', handleDrop);
+            });
+
+            document.addEventListener('dragstart', handleDragStart);
+            checkQuadrantsBtn.addEventListener('click', checkQuadrantAnswers);
+
+            // Shop Logic
+            const renderShopItems = () => {
+                shopItemsContainer.innerHTML = '';
+                shopItems.forEach(item => {
+                    const itemHtml = `
+                        <div class="shop-item bg-white p-4 rounded-lg shadow-md flex items-center justify-between">
+                            <div class="flex items-center">
+                                <span class="text-4xl mr-4">${item.icon}</span>
+                                <div>
+                                    <p class="font-bold">${item.name}</p>
+                                    <p class="text-gray-500 text-sm">Kosten: ${item.cost} punten</p>
+                                </div>
+                            </div>
+                            <button class="buy-btn bg-blue-600 text-white px-6 py-2 rounded-full font-bold transition hover:bg-blue-700" data-id="${item.id}">Koop</button>
+                        </div>
+                    `;
+                    shopItemsContainer.innerHTML += itemHtml;
+                });
+
+                document.querySelectorAll('.buy-btn').forEach(button => {
+                    button.addEventListener('click', (event) => {
+                        const itemId = parseInt(event.target.dataset.id);
+                        const item = shopItems.find(i => i.id === itemId);
+                        
+                        if (appState.currentPoints >= item.cost) {
+                            updatePoints(-item.cost);
+                            showMessage(`Je hebt "${item.name}" gekocht voor ${item.cost} punten!`, () => {
+                                // Specifieke acties voor gekochte items
+                                if (itemId === 3) { // Nederlandse mop
+                                    showMessage("Waarom liepen de twee tomaten door de stad? Omdat de ene dacht dat de andere een rode lantaarn was!");
+                                } else if (itemId === 6) { // Bonus Vraag
+                                    updatePoints(20);
+                                    showMessage("Je hebt een bonus van 20 punten verdiend! Ga zo door!");
+                                } else if (itemId === 7) { // Nieuwe Achtergrond
+                                    const backgrounds = ['#e0f7fa', '#fce4ec', '#fffde7', '#e8f5e9'];
+                                    const newBg = backgrounds[Math.floor(Math.random() * backgrounds.length)];
+                                    document.body.style.backgroundColor = newBg;
+                                    document.body.classList.remove('dark');
+                                    showMessage("Je hebt een nieuwe achtergrond gekocht!");
+                                } else if (itemId === 8) { // Joker
+                                    if (hangmanWord) {
+                                        const unguessed = hangmanWord.split('').filter(char => !guessedLetters.includes(char));
+                                        if (unguessed.length > 0) {
+                                            const randomLetter = unguessed[Math.floor(Math.random() * unguessed.length)];
+                                            handleGuess(randomLetter);
+                                            showMessage(`Je hebt de joker gebruikt en de letter '${randomLetter}' is onthuld!`);
+                                        } else {
+                                            showMessage("Er zijn geen ongeraden letters meer!");
+                                        }
+                                    } else {
+                                        showMessage("Je kunt de joker pas gebruiken als je een spelletje Galgenman speelt.");
+                                    }
+                                }
+                            });
+                        } else {
+                            showMessage(`Niet genoeg punten! Je hebt ${appState.currentPoints} punten, maar dit item kost ${item.cost} punten.`);
+                        }
+                    });
+                });
+            };
+
+            // Hulpprogramma-functie om een array te schudden
+            const shuffleArray = (array) => {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            };
+
+            // Initialisatie functies aanroepen
+            startVocabularyLesson();
+            setupHangmanGame();
+            setupQuadrantGame();
+            startQuiz();
+            renderShopItems();
+        });
     </script>
 </body>
 </html>
