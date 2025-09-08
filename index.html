@@ -189,7 +189,7 @@
         let points = 0;
         let badgeUnlocked = false;
         let jokeUnlocked = false;
-        let pointDoublerStacks = 0; // Deze variabele is nu een teller
+        let pointDoublerStacks = 0;
         let currentTaskAnswers = null;
         let currentTaskInputs = [];
 
@@ -234,85 +234,24 @@
             ]
         };
 
-        function startNewTask() {
-            const taskType = 'vocabulary';
-            const randomTaskSet = tasks[taskType];
-            const randomTask = randomTaskSet[Math.floor(Math.random() * randomTaskSet.length)];
-            
-            currentTaskAnswers = randomTask.answers;
-
-            document.getElementById('task-title').textContent = randomTask.title;
-            document.getElementById('task-description').textContent = randomTask.description;
-            
-            const taskContent = document.getElementById('task-content');
-            taskContent.innerHTML = '';
-            currentTaskInputs = [];
-
-            randomTask.questions.forEach((dutchSentence, index) => {
-                const quizItem = document.createElement('div');
-                quizItem.className = 'quiz-item';
-                const inputId = 'q' + index;
-                quizItem.innerHTML = `
-                    <label for="${inputId}">${dutchSentence}<input type="text" id="${inputId}")</label>
-                    <span class="feedback"></span>
-                `;
-                taskContent.appendChild(quizItem);
-                currentTaskInputs.push(quizItem.querySelector('input'));
-            });
-        }
-
-        function checkCurrentTask() {
-            if (!currentTaskAnswers || currentTaskInputs.length === 0) {
-                alert("Er is geen taak geladen. Klik op 'Nieuwe Taak' om te beginnen.");
-                return;
+        // Functie om de gegevens te laden bij het starten van de pagina
+        function loadData() {
+            const savedPoints = localStorage.getItem('points');
+            if (savedPoints) {
+                points = parseInt(savedPoints);
             }
-
-            let correctCount = 0;
-            const totalQuestions = currentTaskInputs.length;
-            
-            currentTaskInputs.forEach((input, index) => {
-                const feedbackElement = input.nextElementSibling;
-                if (input.value.trim().toLowerCase() === currentTaskAnswers[index].toLowerCase()) {
-                    feedbackElement.textContent = "✅ Correct!";
-                    feedbackElement.className = "feedback correct";
-                    correctCount++;
-                } else {
-                    feedbackElement.textContent = `❌ Fout. Het juiste antwoord is '${currentTaskAnswers[index]}'.`;
-                    feedbackElement.className = "feedback incorrect";
-                }
-            });
-
-            let pointsEarned = correctCount;
-            if (correctCount === totalQuestions) {
-                pointsEarned += 10;
-                alert(`Geweldig! Je hebt alles goed! Je verdient een bonus van 10 punten!`);
-            }
-
-            if (pointDoublerStacks > 0) {
-                pointsEarned = pointsEarned * (1 + pointDoublerStacks);
-                alert(`Puntendubbelaar(s) actief! Je hebt ${pointDoublerStacks} verdubbelaars. Je verdiende punten zijn vermenigvuldigd! Totaal verdiend: ${pointsEarned} punten.`);
-            }
-
-            points += pointsEarned;
-            updatePointsDisplay();
-            alert(`Je hebt ${correctCount} van de ${totalQuestions} goed. Je verdient ${pointsEarned} punt(en). Totaal: ${points}.`);
-        }
-
-        function updatePointsDisplay() {
-            document.getElementById('points-value').textContent = points;
-        }
-
-        function buyItem(item, cost) {
-            if (points >= cost) {
-                points -= cost;
-                updatePointsDisplay();
-
-                if (item === 'badge' && !badgeUnlocked) {
-                    badgeUnlocked = true;
+            const savedBadge = localStorage.getItem('badgeUnlocked');
+            if (savedBadge) {
+                badgeUnlocked = savedBadge === 'true';
+                if (badgeUnlocked) {
                     document.getElementById('badge-status').textContent = '✅ Ontgrendeld!';
                     document.getElementById('buy-badge-btn').disabled = true;
-                } else if (item === 'joke' && !jokeUnlocked) {
-                    jokeUnlocked = true;
+                }
+            }
+            const savedJoke = localStorage.getItem('jokeUnlocked');
+            if (savedJoke) {
+                jokeUnlocked = savedJoke === 'true';
+                if (jokeUnlocked) {
                     const jokes = [
                         "Wat is de snelste manier om je kleren te drogen? Een droger gebruiken. 🤷‍♀️",
                         "Waarom is de Domtoren de hoogste van Nederland? Omdat hij niet kan zitten. 🤣"
@@ -321,16 +260,14 @@
                     document.getElementById('joke-content').textContent = randomJoke;
                     document.getElementById('joke-content').style.display = 'block';
                     document.getElementById('buy-joke-btn').disabled = true;
-                } else if (item === 'doubler') {
-                    pointDoublerStacks++;
+                }
+            }
+            const savedDoublerStacks = localStorage.getItem('pointDoublerStacks');
+            if (savedDoublerStacks) {
+                pointDoublerStacks = parseInt(savedDoublerStacks);
+                if (pointDoublerStacks > 0) {
                     const statusElement = document.getElementById('doubler-status');
                     statusElement.textContent = `✅ Actief! (${pointDoublerStacks}x)`;
-                    alert(`De punten-verdubbelaar is geactiveerd! Je hebt nu ${pointDoublerStacks} verdubbelaars.`);
                 }
-            } else {
-                alert(`❌ Je hebt niet genoeg punten! Je hebt ${points} punten, en je hebt ${cost} punten nodig.`);
             }
-        }
-    </script>
-</body>
-</html>
+            updatePoints
