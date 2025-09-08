@@ -189,7 +189,7 @@
         let points = 0;
         let badgeUnlocked = false;
         let jokeUnlocked = false;
-        let pointDoublerActive = false;
+        let pointDoublerStacks = 0; // Deze variabele is nu een teller
         let currentTaskAnswers = null;
         let currentTaskInputs = [];
 
@@ -284,13 +284,13 @@
 
             let pointsEarned = correctCount;
             if (correctCount === totalQuestions) {
-                        pointsEarned += 10;
+                pointsEarned += 10;
                 alert(`Geweldig! Je hebt alles goed! Je verdient een bonus van 10 punten!`);
             }
 
-            if (pointDoublerActive) {
-                pointsEarned = pointsEarned * 2;
-                alert(`Puntendubbelaar actief! Je verdiende punten zijn verdubbeld. Totaal verdiend: ${pointsEarned} punten.`);
+            if (pointDoublerStacks > 0) {
+                pointsEarned = pointsEarned * (1 + pointDoublerStacks);
+                alert(`Puntendubbelaar(s) actief! Je hebt ${pointDoublerStacks} verdubbelaars. Je verdiende punten zijn vermenigvuldigd! Totaal verdiend: ${pointsEarned} punten.`);
             }
 
             points += pointsEarned;
@@ -321,11 +321,11 @@
                     document.getElementById('joke-content').textContent = randomJoke;
                     document.getElementById('joke-content').style.display = 'block';
                     document.getElementById('buy-joke-btn').disabled = true;
-                } else if (item === 'doubler' && !pointDoublerActive) {
-                    pointDoublerActive = true;
-                    document.getElementById('doubler-status').textContent = '✅ Actief!';
-                    document.getElementById('buy-doubler-btn').disabled = true;
-                    alert("De punten-verdubbelaar is geactiveerd! Je verdient nu twee keer zoveel punten.");
+                } else if (item === 'doubler') {
+                    pointDoublerStacks++;
+                    const statusElement = document.getElementById('doubler-status');
+                    statusElement.textContent = `✅ Actief! (${pointDoublerStacks}x)`;
+                    alert(`De punten-verdubbelaar is geactiveerd! Je hebt nu ${pointDoublerStacks} verdubbelaars.`);
                 }
             } else {
                 alert(`❌ Je hebt niet genoeg punten! Je hebt ${points} punten, en je hebt ${cost} punten nodig.`);
