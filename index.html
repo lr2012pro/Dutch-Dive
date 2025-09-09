@@ -5,752 +5,639 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Duik in het Nederlands</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        /* Algemene styling voor de body en container */
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f0f4f8;
-            color: #1a202c;
-            line-height: 1.6;
-            transition: background-color 0.3s, color 0.3s;
-            overflow-x: hidden;
-        }
-        body.dark {
-            background-color: #121212;
-            color: #e0e0e0;
-        }
-        .container {
-            max-width: 900px;
-            margin: 2rem auto;
-            padding: 1rem;
-            background-color: #ffffff;
-            border-radius: 1rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            transition: background-color 0.3s, box-shadow 0.3s;
-        }
-        body.dark .container {
-            background-color: #1e1e1e;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
-        }
-        .green-card {
-            background-color: #ecfdf5;
-            padding: 1.5rem;
-            border-radius: 1rem;
-            margin-bottom: 2rem;
-            border: 2px solid #a7f3d0;
-            transition: background-color 0.3s, border-color 0.3s;
-        }
-        body.dark .green-card {
-            background-color: #1e3a24;
-            border-color: #0c4a1e;
-        }
-        .blue-btn {
-            background-color: #2e307f;
-            color: white;
-            padding: 0.75rem 1rem;
-            border-radius: 0.75rem;
-            font-weight: 600;
-            text-align: center;
-            transition: all 0.2s ease-in-out;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-        .blue-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
-        }
-        .login-screen {
-            text-align: center;
-            padding: 2rem;
-        }
-        #login-input,
-        .modal-content input,
-        .lesson-input {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #d1d5db;
-            border-radius: 0.5rem;
-        }
-        body.dark #login-input,
-        body.dark .modal-content input,
-        body.dark .lesson-input {
-            background-color: #2d2d2d;
-            border-color: #4f4f4f;
-            color: #e0e0e0;
-        }
-        .shop-item {
-            background-color: #ffffff;
-            transition: background-color 0.3s, box-shadow 0.3s;
-        }
-        body.dark .shop-item {
-            background-color: #2d2d2d;
-        }
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-        .modal-content {
-            background-color: #fff;
-            padding: 2rem;
-            border-radius: 1rem;
-            max-width: 400px;
-            width: 90%;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            text-align: center;
-        }
-        body.dark .modal-content {
-            background-color: #1e1e1e;
-        }
-        .hangman-word {
-            letter-spacing: 0.5rem;
-            font-size: 2.5rem;
-            font-weight: bold;
-            font-family: monospace;
-            text-align: center;
-            margin-bottom: 1rem;
-        }
-        .keyboard {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
-            gap: 0.5rem;
-            margin-top: 1rem;
-        }
-        .keyboard button {
-            background-color: #2e307f;
-            color: white;
-            padding: 0.5rem;
-            border-radius: 0.5rem;
-            font-weight: bold;
-            transition: all 0.2s ease-in-out;
-        }
-        .keyboard button:disabled {
-            background-color: #6b7280;
-            cursor: not-allowed;
-        }
-        .hangman-drawing {
-            font-family: monospace;
-            white-space: pre;
-            text-align: center;
-            font-size: 1.2rem;
-            margin: 1rem 0;
-        }
-        /* Kwadrantenspel specifieke styling */
-        .quadrant-game {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .quadrant-board {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            grid-template-rows: 1fr 1fr;
-            gap: 1rem;
-            width: 100%;
-            max-width: 600px;
-            margin-top: 1rem;
-        }
-        .quadrant-zone {
-            background-color: #f3f4f6;
-            border: 2px dashed #9ca3af;
-            border-radius: 0.75rem;
-            padding: 1rem;
-            min-height: 150px;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            transition: border-color 0.2s, background-color 0.2s;
-        }
-        .quadrant-zone.drag-over {
-            border-color: #4f46e5;
-            background-color: #e0e7ff;
-        }
-        .quadrant-word {
-            background-color: #2e307f;
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            cursor: grab;
-            margin: 0.25rem;
-            font-weight: bold;
-            transition: transform 0.2s;
-        }
-        .quadrant-word:active {
-            cursor: grabbing;
-        }
-        .word-bank {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-        }
-        .word-bank .quadrant-word {
-            margin: 0;
-        }
-    </style>
-</head>
-<body class="bg-gray-100 p-4">
-    <div id="app" class="container">
-        <!-- Login Screen -->
-        <div id="login-screen" class="login-screen">
-            <h1 class="text-3xl font-bold mb-4">Duik in het Nederlands</h1>
-            <p class="text-sm text-gray-500 mb-6">Je voortgang wordt automatisch opgeslagen. Je hebt geen wachtwoord nodig!</p>
-            <div class="space-y-4">
-                <button id="google-login-btn" class="blue-btn w-full flex-row">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/24px-Google_%22G%22_logo.svg.png" alt="Google logo" class="w-6 h-6 mr-2">
-                    Inloggen met Google
-                </button>
-                <button id="microsoft-login-btn" class="blue-btn w-full flex-row">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Microsoft_Corporate_logo.svg/24px-Microsoft_%22G%22_logo.svg.png" alt="Microsoft logo" class="w-6 h-6 mr-2">
-                    Inloggen met Microsoft
-                </button>
-                <button id="teacher-login-btn" class="blue-btn w-full flex-row">
-                    <span class="text-2xl mr-2">👨‍🏫</span>
-                    Ik ben een Docent
-                </button>
-                <div class="relative flex items-center py-5">
-                    <div class="flex-grow border-t border-gray-400"></div>
-                    <span class="flex-shrink mx-4 text-gray-400">of</span>
-                    <div class="flex-grow border-t border-gray-400"></div>
-                </div>
-                <input type="text" id="login-input" placeholder="Voer je naam in..." class="mb-4">
-                <button id="start-btn" class="blue-btn w-full">Starten</button>
-            </div>
-        </div>
+    <script type="module">
+        // Firebase imports. These are automatically provided in the Canvas environment.
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection, query, addDoc, deleteDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        <!-- Teacher Login Modal -->
-        <div id="teacher-login-modal" class="modal hidden">
-            <div class="modal-content">
-                <h2 class="text-2xl font-bold mb-4">Docenten Aanmelding</h2>
-                <input type="text" id="teacher-name-input" placeholder="Voer je naam in..." class="w-full px-4 py-2 border rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-green-600">
-                <input type="password" id="teacher-password-input" placeholder="Wachtwoord" class="w-full px-4 py-2 border rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-green-600">
-                <div class="relative flex items-center py-5">
-                    <div class="flex-grow border-t border-gray-400"></div>
-                    <span class="flex-shrink mx-4 text-gray-400">of</span>
-                    <div class="flex-grow border-t border-gray-400"></div>
-                </div>
-                <button id="teacher-login-submit" class="blue-btn w-full">Aanmelden</button>
-                <button id="teacher-login-close" class="bg-gray-400 text-white px-6 py-2 rounded-full font-bold transition hover:bg-gray-500 mt-4">Sluiten</button>
-            </div>
-        </div>
+        // Global variables from the Canvas environment.
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : '';
+        
+        // Global Firestore and Auth instances
+        let app, db, auth;
+        
+        // Global status variables for the app
+        let currentUserId = null;
+        let isTeacher = false;
+        let userLevel = 1;
+        let userPoints = 0;
+        let unsubscribeClassListener = null;
 
-        <!-- Main App Content (hidden by default) -->
-        <div id="main-content" class="hidden">
-            <!-- Header Section -->
-            <div class="flex justify-between items-center mb-6">
-                <h1 class="text-3xl font-bold">Duik in het Nederlands</h1>
-                <div class="flex items-center">
-                    <button id="theme-toggle" class="bg-gray-200 text-gray-800 px-3 py-1 rounded-full shadow-md mr-4">
-                        <svg id="sun-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                        </svg>
-                        <svg id="moon-icon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
-                        </svg>
-                    </button>
-                    <div id="points-display" class="flex items-center bg-yellow-400 text-gray-800 font-bold px-4 py-2 rounded-full shadow-md">
-                        <span class="mr-2">⭐</span>
-                        <span id="points">0</span> Punten
+        // --- Core Application Functions ---
+
+        /**
+         * Initializes Firebase app and authentication.
+         * Sets up the main authentication state listener.
+         */
+        const initializeAppAndAuth = async () => {
+            setLogLevel('Debug');
+            try {
+                app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        currentUserId = user.uid;
+                        await loadUserData();
+                        document.getElementById('loading-screen').classList.add('hidden');
+                        document.getElementById('main-content').classList.remove('hidden');
+                        document.getElementById('login-screen').classList.add('hidden');
+                        updateUserProfileUI();
+                        startFirestoreListeners();
+                    } else {
+                        document.getElementById('loading-screen').classList.add('hidden');
+                        document.getElementById('login-screen').classList.remove('hidden');
+                        document.getElementById('main-content').classList.add('hidden');
+                        currentUserId = null;
+                        if (unsubscribeClassListener) {
+                            unsubscribeClassListener();
+                        }
+                    }
+                });
+
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                }
+            } catch (error) {
+                console.error("Fout bij het initialiseren van Firebase:", error);
+                showMessage(`Fout bij het initialiseren van de app: ${error.message}`);
+                document.getElementById('loading-screen').classList.add('hidden');
+            }
+        };
+
+        /**
+         * Loads user data from Firestore on login.
+         * If no data exists, creates a new user profile document.
+         */
+        const loadUserData = async () => {
+            if (!currentUserId) return;
+            const userDocRef = doc(db, `/artifacts/${appId}/users/${currentUserId}/profile/data`);
+            const userDoc = await getDoc(userDocRef);
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+                isTeacher = userData.isTeacher || false;
+                userLevel = userData.level || 1;
+                userPoints = userData.points || 0;
+                updatePointsUI(userPoints);
+                updateLevelUI(userLevel);
+                updateProgressUI(userPoints);
+            } else {
+                await setDoc(userDocRef, { isTeacher: false, points: 0, level: 1, displayName: auth.currentUser.displayName || `Anonieme Gebruiker` });
+                isTeacher = false;
+                userPoints = 0;
+                userLevel = 1;
+                updatePointsUI(userPoints);
+                updateLevelUI(userLevel);
+                updateProgressUI(userPoints);
+            }
+        };
+
+        /**
+         * Updates user data in Firestore.
+         * @param {object} data - The data to update.
+         */
+        const updateUserData = async (data) => {
+            if (!currentUserId) return;
+            const userDocRef = doc(db, `/artifacts/${appId}/users/${currentUserId}/profile/data`);
+            try {
+                await setDoc(userDocRef, data, { merge: true });
+            } catch (error) {
+                console.error("Fout bij het updaten van gebruikersgegevens:", error);
+            }
+        };
+
+        /**
+         * Starts real-time Firestore listeners based on user role.
+         */
+        const startFirestoreListeners = () => {
+            if (isTeacher) {
+                const classesColRef = collection(db, `/artifacts/${appId}/public/data/classes`);
+                unsubscribeClassListener = onSnapshot(classesColRef, (snapshot) => {
+                    const classes = [];
+                    snapshot.forEach(doc => {
+                        classes.push({ id: doc.id, ...doc.data() });
+                    });
+                    renderClasses(classes);
+                });
+            } else {
+                const tasksColRef = collection(db, `/artifacts/${appId}/users/${currentUserId}/tasks`);
+                onSnapshot(tasksColRef, (snapshot) => {
+                    const tasks = [];
+                    snapshot.forEach(doc => {
+                        tasks.push({ id: doc.id, ...doc.data() });
+                    });
+                    renderStudentTasks(tasks);
+                });
+            }
+        };
+
+        // --- UI Rendering Functions ---
+
+        /**
+         * Renders a customizable modal dialog.
+         * @param {string} message - The message to display.
+         * @param {function} onOk - Callback function for the OK button.
+         */
+        const showMessage = (message, onOk = () => {}) => {
+            const modalHtml = `
+                <div class="fixed inset-0 bg-gray-900 bg-opacity-70 flex items-center justify-center z-50 p-4">
+                    <div class="bg-blue-600 dark:bg-blue-900 bg-opacity-40 backdrop-blur-lg border border-white/20 p-8 rounded-2xl shadow-xl max-w-sm w-full text-center transform scale-95 transition-all">
+                        <p class="text-lg font-semibold text-white mb-6">${message}</p>
+                        <button id="close-modal" class="bg-blue-600 text-white px-8 py-3 rounded-full font-bold shadow-lg hover:bg-blue-700 transition">OK</button>
                     </div>
                 </div>
-            </div>
-            <p class="text-gray-600 mb-4">Gebruikers-ID: <span id="user-id" class="font-mono">Laden...</span></p>
+            `;
+            const modal = document.createElement('div');
+            modal.innerHTML = modalHtml;
+            document.body.appendChild(modal);
+            document.getElementById('close-modal').addEventListener('click', () => {
+                modal.remove();
+                onOk();
+            });
+        };
 
-            <!-- Student Content Section (hidden for teachers) -->
-            <div id="student-only-content">
-                <!-- Navigatie -->
-                <nav class="flex justify-around mb-6 text-xl font-semibold">
-                    <button class="nav-btn p-2 rounded-md transition-colors hover:bg-gray-200" data-target="student-sections">Taken</button>
-                    <button class="nav-btn p-2 rounded-md transition-colors hover:bg-gray-200" data-target="lesson-sections">Lessen</button>
-                    <button class="nav-btn p-2 rounded-md transition-colors hover:bg-gray-200" data-target="quiz-sections">Quiz</button>
-                    <button class="nav-btn p-2 rounded-md transition-colors hover:bg-gray-200" data-target="game-section">Spellen</button>
-                    <button class="nav-btn p-2 rounded-md transition-colors hover:bg-gray-200" data-target="shop-section">Winkel</button>
-                </nav>
-
-                <!-- Student Sections -->
-                <div id="student-sections" class="content-section">
-                    <div id="student-join-section" class="green-card mb-6">
-                        <h2 class="text-2xl font-bold text-green-800 mb-4">Deelnemen aan een klas</h2>
-                        <div class="flex flex-col sm:flex-row items-center mb-4">
-                            <input type="text" id="class-join-input" placeholder="Voer de naam van de klas in..." class="w-full sm:w-2/3 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-600 mb-2 sm:mb-0 sm:mr-4">
-                            <button id="request-join-btn" class="blue-btn w-full sm:w-1/3">Verzoek versturen</button>
-                        </div>
-                        <p id="join-message" class="text-green-700 text-center hidden"></p>
-                    </div>
-
-                    <div id="student-tasks" class="green-card">
-                        <h2 class="text-2xl font-bold text-green-800 mb-4">Jouw Toegewezen Taken</h2>
-                        <ul id="assigned-tasks" class="space-y-2">
-                            <!-- Taken worden hier dynamisch toegevoegd -->
-                        </ul>
-                    </div>
-                </div>
-
-                <!-- Lesson Sections -->
-                <div id="lesson-sections" class="content-section hidden">
-                    <div class="green-card mb-6">
-                        <h2 class="text-2xl font-bold text-green-800 mb-4">Woordjes Leren</h2>
-                        <div id="vocabulary-lesson">
-                            <div id="vocab-category-selector" class="mb-4">
-                                <h3 class="font-bold mb-2">Selecteer een Categorie:</h3>
-                                <select id="vocab-category" class="w-full px-4 py-2 border rounded-md">
-                                    <option value="dieren">Dieren</option>
-                                    <option value="eten">Eten & Drinken</option>
-                                    <option value="reizen">Reizen</option>
-                                </select>
-                            </div>
-                            <p id="current-word" class="text-2xl font-bold text-center mb-4 text-blue-700"></p>
-                            <input type="text" id="translation-input" class="lesson-input mb-4" placeholder="Typ je antwoord hier...">
-                            <button id="check-translation-btn" class="blue-btn w-full">Controleren</button>
-                            <p id="translation-result" class="text-center mt-4 hidden"></p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Quiz Sections -->
-                <div id="quiz-sections" class="content-section hidden">
-                    <div class="green-card mb-6">
-                        <h2 class="text-2xl font-bold text-green-800 mb-4">Grammatica en Vocabulaire Quiz</h2>
-                        <div id="quiz-container">
-                            <div id="question-card" class="bg-white p-6 rounded-lg shadow-md">
-                                <p id="question-text" class="text-lg mb-4"></p>
-                                <div id="answer-options" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <!-- Antwoorden worden hier dynamisch geladen -->
-                                </div>
-                            </div>
-                            <button id="next-quiz-btn" class="blue-btn w-full mt-4 hidden">Volgende Vraag</button>
-                            <p id="quiz-feedback" class="text-center mt-4"></p>
-                            <p id="quiz-score" class="text-center mt-2 font-bold"></p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Game Section -->
-                <div id="game-section" class="content-section hidden">
-                    <div class="green-card mb-6">
-                        <h2 class="text-2xl font-bold text-green-800 mb-4">Galgenman</h2>
-                        <div id="hangman-game" class="text-center">
-                            <pre id="hangman-drawing" class="hangman-drawing"></pre>
-                            <p id="hangman-word-display" class="hangman-word"></p>
-                            <p id="hangman-message" class="text-lg font-semibold mb-4"></p>
-                            <div id="hangman-keyboard" class="keyboard"></div>
-                            <button id="hangman-restart-btn" class="blue-btn w-full hidden">Nieuw Spel</button>
-                        </div>
-                    </div>
-                    <div class="green-card">
-                        <h2 class="text-2xl font-bold text-green-800 mb-4">Kwadrantenspel</h2>
-                        <div id="quadrant-game" class="quadrant-game">
-                            <div id="word-bank" class="word-bank"></div>
-                            <div class="quadrant-board">
-                                <div id="quadrant1" class="quadrant-zone" data-category="dieren">
-                                    <p class="font-bold text-lg">Dieren</p>
-                                </div>
-                                <div id="quadrant2" class="quadrant-zone" data-category="eten">
-                                    <p class="font-bold text-lg">Eten & Drinken</p>
-                                </div>
-                                <div id="quadrant3" class="quadrant-zone" data-category="reizen">
-                                    <p class="font-bold text-lg">Reizen</p>
-                                </div>
-                                <div id="quadrant4" class="quadrant-zone" data-category="beroepen">
-                                    <p class="font-bold text-lg">Beroepen</p>
-                                </div>
-                            </div>
-                            <button id="check-quadrants-btn" class="blue-btn w-full mt-4">Controleer Antwoorden</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Shop Section -->
-                <div id="shop-section" class="content-section hidden">
-                    <div class="green-card">
-                        <h2 class="text-2xl font-bold text-green-800 mb-4">Winkel (Shop) 🛍️</h2>
-                        <p class="text-green-700 mb-6">Geef je punten uit aan leuke dingen!</p>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="shop-items-container">
-                            <!-- Shop items will be generated here -->
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Teacher Section (hidden for students) -->
-            <div id="teacher-section" class="green-card hidden">
-                <!-- Teacher classes view -->
-                <div id="class-view">
-                    <h2 class="text-2xl font-bold text-green-800 mb-4">Docentenportaal</h2>
-                    <div class="flex flex-col sm:flex-row items-center mb-4">
-                        <input type="text" id="class-name-input" placeholder="Naam van de nieuwe klas..." class="w-full sm:w-2/3 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-600 mb-2 sm:mb-0 sm:mr-4">
-                        <button id="create-class-btn" class="blue-btn w-full sm:w-1/3">Klas Maken</button>
-                    </div>
-                    <h3 class="text-xl font-semibold mb-2">Jouw Klassen:</h3>
-                    <ul id="class-list" class="space-y-2"></ul>
-                </div>
-                
-                <!-- Student management and task assignment view (hidden by default) -->
-                <div id="teacher-class-management" class="hidden">
-                    <h2 id="teacher-class-title" class="text-2xl font-bold text-green-800 mb-4"></h2>
-                    <div class="flex flex-col sm:flex-row items-center mb-4">
-                        <input type="text" id="add-student-input" placeholder="Naam van de nieuwe leerling..." class="w-full sm:w-2/3 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-600 mb-2 sm:mb-0 sm:mr-4">
-                        <button id="add-student-btn" class="blue-btn w-full sm:w-1/3">Leerling Toevoegen</button>
-                    </div>
-                    <h3 class="text-xl font-semibold mb-2">Leerlingen in deze klas:</h3>
-                    <ul id="student-list" class="space-y-2 mb-4"></ul>
-                    
-                    <h3 class="text-xl font-semibold mb-2">Taak Toewijzen:</h3>
-                    <div class="flex flex-col sm:flex-row items-center mb-4">
-                        <input type="text" id="task-input" placeholder="Beschrijf de taak..." class="w-full sm:w-2/3 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-600 mb-2 sm:mb-0 sm:mr-4">
-                        <button id="assign-task-btn" class="blue-btn w-full sm:w-1/3">Taak Toewijzen</button>
-                    </div>
-                    <h3 class="text-xl font-semibold mb-2">Toegewezen Taken:</h3>
-                    <ul id="teacher-task-list" class="space-y-2"></ul>
-
-                    <button id="back-to-classes-btn" class="mt-4 bg-gray-400 text-white px-6 py-2 rounded-full font-bold transition hover:bg-gray-500">Terug naar klassen</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // UI Elementen ophalen
-            const loginScreen = document.getElementById('login-screen');
-            const mainContent = document.getElementById('main-content');
-            const startBtn = document.getElementById('start-btn');
-            const googleLoginBtn = document.getElementById('google-login-btn');
-            const microsoftLoginBtn = document.getElementById('microsoft-login-btn');
-            const teacherLoginBtn = document.getElementById('teacher-login-btn');
-            const loginInput = document.getElementById('login-input');
-            const userIdEl = document.getElementById('user-id');
-            const pointsEl = document.getElementById('points');
-            const themeToggleBtn = document.getElementById('theme-toggle');
-            const body = document.body;
-            const sunIcon = document.getElementById('sun-icon');
-            const moonIcon = document.getElementById('moon-icon');
+        /**
+         * Updates the user profile display in the header.
+         */
+        const updateUserProfileUI = () => {
+            const displayName = auth.currentUser.displayName || `Anonieme Gebruiker`;
+            const userId = auth.currentUser.uid;
+            document.getElementById('user-profile-name').textContent = displayName;
+            document.getElementById('user-id-display').textContent = `ID: ${userId}`;
             
-            const studentOnlyContent = document.getElementById('student-only-content');
-            const pointsDisplay = document.getElementById('points-display');
-            const navButtons = document.querySelectorAll('.nav-btn');
-            const contentSections = document.querySelectorAll('.content-section');
+            if (isTeacher) {
+                document.getElementById('teacher-section').classList.remove('hidden');
+                document.getElementById('student-only-content').classList.add('hidden');
+                document.getElementById('teacher-section-btn').classList.remove('hidden');
+            } else {
+                document.getElementById('teacher-section').classList.add('hidden');
+                document.getElementById('student-only-content').classList.remove('hidden');
+                document.getElementById('teacher-section-btn').classList.add('hidden');
+            }
+        };
 
-            // Student UI
-            const assignedTasksList = document.getElementById('assigned-tasks');
-            const classJoinInput = document.getElementById('class-join-input');
-            const requestJoinBtn = document.getElementById('request-join-btn');
-            const joinMessage = document.getElementById('join-message');
-            
-            // Teacher UI
-            const teacherSection = document.getElementById('teacher-section');
-            const classView = document.getElementById('class-view');
-            const teacherClassManagement = document.getElementById('teacher-class-management');
-            const teacherClassTitle = document.getElementById('teacher-class-title');
-            const classNameInput = document.getElementById('class-name-input');
-            const createClassBtn = document.getElementById('create-class-btn');
+        /**
+         * Updates the points display and checks for level up.
+         * @param {number} amount - The amount of points to add or subtract.
+         */
+        const updatePoints = async (amount) => {
+            userPoints += amount;
+            updatePointsUI(userPoints);
+            updateProgressUI(userPoints);
+            const newLevel = getLevelFromPoints(userPoints);
+            if (newLevel > userLevel) {
+                userLevel = newLevel;
+                updateLevelUI(userLevel);
+                showMessage(`Gefeliciteerd! Je bent nu niveau ${userLevel}.`);
+            }
+            await updateUserData({ points: userPoints, level: userLevel });
+        };
+
+        /**
+         * Updates the points display element.
+         * @param {number} points - The current points total.
+         */
+        const updatePointsUI = (points) => {
+            document.getElementById('points').textContent = points;
+        };
+        
+        /**
+         * Updates the level display element.
+         * @param {number} level - The current level.
+         */
+        const updateLevelUI = (level) => {
+            document.getElementById('level').textContent = level;
+        };
+
+        /**
+         * Updates the progress bar based on current points.
+         * @param {number} points - The current points total.
+         */
+        const updateProgressUI = (points) => {
+            const nextLevelPoints = getNextLevelPoints(userLevel);
+            const prevLevelPoints = getPreviousLevelPoints(userLevel);
+            const pointsInLevel = points - prevLevelPoints;
+            const levelGoal = nextLevelPoints - prevLevelPoints;
+            const progress = (pointsInLevel / levelGoal) * 100;
+            const progressBar = document.getElementById('progress-bar');
+            progressBar.style.width = `${Math.min(100, progress)}%`;
+            document.getElementById('progress-text').textContent = `${pointsInLevel} / ${levelGoal} punten`;
+        };
+
+        // --- Helper Functions ---
+
+        /**
+         * Calculates the level based on points.
+         * @param {number} points - The current points total.
+         * @returns {number} The calculated level.
+         */
+        const getLevelFromPoints = (points) => {
+            if (points < 100) return 1;
+            if (points < 250) return 2;
+            if (points < 500) return 3;
+            return Math.floor(points / 250) + 1;
+        };
+        
+        /**
+         * Calculates the points needed for the next level.
+         * @param {number} level - The current level.
+         * @returns {number} The points goal for the next level.
+         */
+        const getNextLevelPoints = (level) => {
+            if (level === 1) return 100;
+            if (level === 2) return 250;
+            return (level - 1) * 250;
+        };
+
+        /**
+         * Calculates the points required to reach the current level.
+         * @param {number} level - The current level.
+         * @returns {number} The points at the start of the current level.
+         */
+        const getPreviousLevelPoints = (level) => {
+            if (level <= 1) return 0;
+            if (level === 2) return 100;
+            if (level === 3) return 250;
+            return (level - 2) * 250;
+        };
+
+        // --- Teacher UI Rendering Functions ---
+
+        /**
+         * Renders the list of classes for the teacher.
+         * @param {Array} classes - An array of class objects.
+         */
+        const renderClasses = (classes) => {
             const classList = document.getElementById('class-list');
-            const addStudentInput = document.getElementById('add-student-input');
-            const addStudentBtn = document.getElementById('add-student-btn');
-            const studentList = document.getElementById('student-list');
-            const taskInput = document.getElementById('task-input');
-            const assignTaskBtn = document.getElementById('assign-task-btn');
-            const teacherTaskList = document.getElementById('teacher-task-list');
-            const backToClassesBtn = document.getElementById('back-to-classes-btn');
-            
-            // Login Modal
-            const teacherLoginModal = document.getElementById('teacher-login-modal');
-            const teacherLoginSubmitBtn = document.getElementById('teacher-login-submit');
-            const teacherLoginCloseBtn = document.getElementById('teacher-login-close');
-            const teacherNameInput = document.getElementById('teacher-name-input');
-            const teacherPasswordInput = document.getElementById('teacher-password-input');
+            classList.innerHTML = '';
+            if (classes.length === 0) {
+                classList.innerHTML = '<p class="text-white/70 text-center">Nog geen klassen aangemaakt.</p>';
+            }
+            classes.forEach((classObj) => {
+                const listItem = document.createElement('li');
+                listItem.textContent = classObj.name;
+                listItem.className = 'glass-card p-4 cursor-pointer hover:bg-white/20 dark:hover:bg-black/20 transform hover:scale-105 transition-all text-center';
+                listItem.dataset.id = classObj.id;
+                classList.appendChild(listItem);
+            });
+        };
 
-            // Lesson UI & Data
-            const vocabularyLessons = {
-                dieren: [{ en: "dog", nl: "hond" }, { en: "cat", nl: "kat" }, { en: "bird", nl: "vogel" }],
-                eten: [{ en: "apple", nl: "appel" }, { en: "bread", nl: "brood" }, { en: "cheese", nl: "kaas" }],
-                reizen: [{ en: "train", nl: "trein" }, { en: "plane", nl: "vliegtuig" }, { en: "hotel", nl: "hotel" }]
-            };
-            let currentVocabLesson = [];
-            let currentWordIndex = 0;
-            const vocabCategorySelector = document.getElementById('vocab-category');
-            const currentWordEl = document.getElementById('current-word');
-            const translationInput = document.getElementById('translation-input');
-            const checkTranslationBtn = document.getElementById('check-translation-btn');
-            const translationResultEl = document.getElementById('translation-result');
-
-            // Quiz UI & Data
-            const quizzes = [
-                {
-                    question: "Welk woord is een zelfstandig naamwoord?",
-                    options: ["lopen", "snel", "boek", "rood"],
-                    answer: "boek"
-                },
-                {
-                    question: "Wat is het meervoud van 'huis'?",
-                    options: ["huizen", "huizenes", "huisen", "huis"],
-                    answer: "huizen"
-                },
-                {
-                    question: "Wat is de juiste spelling?",
-                    options: ["'t Is", "Het is", "Het's", "Is het"],
-                    answer: "'t Is"
-                },
-                {
-                    question: "Wat is de vervoeging van 'zijn' in de tegenwoordige tijd voor 'hij'?",
-                    options: ["ben", "is", "zijn", "bent"],
-                    answer: "is"
-                }
-            ];
-            let currentQuizQuestionIndex = 0;
-            const quizContainer = document.getElementById('quiz-container');
-            const questionTextEl = document.getElementById('question-text');
-            const answerOptionsEl = document.getElementById('answer-options');
-            const nextQuizBtn = document.getElementById('next-quiz-btn');
-            const quizFeedbackEl = document.getElementById('quiz-feedback');
-            const quizScoreEl = document.getElementById('quiz-score');
-
-            // Hangman Logic
-            const hangmanWords = ["fiets", "boom", "school", "computer", "Nederlands", "galgenman", "programmeren"];
-            const hangmanStages = [
-`
-  +---+
-  |   |
-      |
-      |
-      |
-      |
-=========`,
-`
-  +---+
-  |   |
-  O   |
-      |
-      |
-      |
-=========`,
-`
-  +---+
-  |   |
-  O   |
-  |   |
-      |
-      |
-=========`,
-`
-  +---+
-  |   |
-  O   |
- /|   |
-      |
-      |
-=========`,
-`
-  +---+
-  |   |
-  O   |
- /|\\  |
-      |
-      |
-=========`,
-`
-  +---+
-  |   |
-  O   |
- /|\\  |
- /    |
-      |
-=========`,
-`
-  +---+
-  |   |
-  O   |
- /|\\  |
- / \\  |
-      |
-=========
-`
-            ];
-            let hangmanWord = "";
-            let guessedLetters = [];
-            let mistakes = 0;
-            const maxMistakes = 6;
-            const hangmanDrawingEl = document.getElementById('hangman-drawing');
-            const hangmanWordDisplayEl = document.getElementById('hangman-word-display');
-            const hangmanMessageEl = document.getElementById('hangman-message');
-            const hangmanKeyboardEl = document.getElementById('hangman-keyboard');
-            const hangmanRestartBtn = document.getElementById('hangman-restart-btn');
-
-            // Kwadrantenspel Logic & Data
-            const quadrantData = {
-                dieren: ["hond", "kat", "vogel", "paard", "konijn"],
-                eten: ["pizza", "appel", "kaas", "brood", "pasta"],
-                reizen: ["trein", "vliegtuig", "bus", "auto", "fiets"],
-                beroepen: ["arts", "leraar", "bakker", "monteur", "kok"]
-            };
-            const wordBankEl = document.getElementById('word-bank');
-            const checkQuadrantsBtn = document.getElementById('check-quadrants-btn');
-            let dragSourceEl = null;
-
-            // Shop Data
-            const shopItems = [
-                { id: 1, name: "Digitale Badge 'Grammatica Expert'", cost: 5, icon: "✍️" },
-                { id: 2, name: "Chatbot Tutor", cost: 10, icon: "🤖" },
-                { id: 3, name: "Nederlandse Mop", cost: 3, icon: "🤓" },
-                { id: 4, name: "Punten-Verdubbelaar", cost: 10, icon: "🚀" },
-                { id: 5, name: "Virtuele Sticker 'Goed Bezig!'", cost: 2, icon: "🏆" },
-                { id: 6, name: "Bonus Vraag", cost: 8, icon: "💡" },
-                { id: 7, name: "Nieuwe Achtergrond", cost: 15, icon: "🖼️" },
-                { id: 8, name: "Joker (Galgenman)", cost: 5, icon: "🃏" },
-            ];
-            const shopItemsContainer = document.getElementById('shop-items-container');
-
-            // Globale variabele voor applicatiestatus
-            let appState = {
-                classes: [],
-                selectedClassIndex: null,
-                registeredNames: [],
-                isTeacherLoggedIn: false,
-                currentPoints: 0,
-                userState: {}
-            };
-
-            // Functie om de applicatiestatus op te slaan (in-memory, voor demonstratie)
-            const saveState = () => {
-                const userName = loginInput.value.trim();
-                if (userName) {
-                    appState.userState[userName] = {
-                        points: appState.currentPoints,
-                    };
-                }
-            };
-
-            // Functie om de applicatiestatus te laden
-            const loadState = (userName) => {
-                if (appState.userState[userName]) {
-                    appState.currentPoints = appState.userState[userName].points;
-                    pointsEl.textContent = appState.currentPoints;
+        /**
+         * Displays the details of a specific class for the teacher.
+         * @param {string} classId - The ID of the class to display.
+         */
+        const showClassDetails = async (classId) => {
+            const classDocRef = doc(db, `/artifacts/${appId}/public/data/classes/${classId}`);
+            onSnapshot(classDocRef, async (docSnapshot) => {
+                if (docSnapshot.exists()) {
+                    const classData = docSnapshot.data();
+                    document.getElementById('current-class-id').textContent = classId;
+                    document.getElementById('current-class-name').textContent = classData.name;
+                    await renderStudentsInClass(classData.students);
+                    renderTasksInClass(classData.tasks);
+                    document.getElementById('teacher-class-management').classList.add('hidden');
+                    document.getElementById('class-view').classList.remove('hidden');
                 } else {
-                    appState.currentPoints = 0;
-                    pointsEl.textContent = appState.currentPoints;
+                    showMessage("Deze klas bestaat niet meer.");
+                    document.getElementById('class-view').classList.add('hidden');
+                    document.getElementById('teacher-class-management').classList.remove('hidden');
                 }
-            };
+            });
+        };
 
-            // Functie voor het tonen van een modaal venster
-            const showMessage = (message, onOk = () => {}) => {
-                const modalHtml = `
-                    <div class="modal">
-                        <div class="modal-content">
-                            <p class="text-lg">${message}</p>
-                            <button id="close-modal" class="blue-btn mt-4 px-6 py-2">OK</button>
-                        </div>
+        /**
+         * Renders the list of students in a class with their points.
+         * @param {Array} students - An array of student IDs.
+         */
+        const renderStudentsInClass = async (students) => {
+            const studentList = document.getElementById('student-list');
+            studentList.innerHTML = '';
+            if (students.length === 0) {
+                studentList.innerHTML = '<p class="text-white/70 text-center">Nog geen studenten in deze klas.</p>';
+                return;
+            }
+            const studentDataPromises = students.map(async (studentId) => {
+                const userDocRef = doc(db, `/artifacts/${appId}/users/${studentId}/profile/data`);
+                const userDoc = await getDoc(userDocRef);
+                if (userDoc.exists()) {
+                    const data = userDoc.data();
+                    return { id: studentId, displayName: data.displayName, points: data.points || 0 };
+                }
+                return null;
+            });
+            const studentData = (await Promise.all(studentDataPromises)).filter(s => s !== null);
+            
+            // Sort students by points for the leaderboard
+            studentData.sort((a, b) => b.points - a.points);
+
+            studentData.forEach(student => {
+                const listItem = document.createElement('li');
+                listItem.className = 'glass-card p-4 flex justify-between items-center transform hover:scale-105 transition-transform';
+                listItem.innerHTML = `
+                    <div class="flex-grow">
+                        <span>${student.displayName}</span>
+                        <span class="text-sm text-yellow-300 ml-2">(${student.points} punten)</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button class="view-student-btn bg-blue-500 text-white px-3 py-1 rounded-full text-sm hover:bg-blue-600 transition" data-student-id="${student.id}">Bekijk</button>
+                        <button class="remove-student-btn bg-red-500 text-white px-3 py-1 rounded-full text-sm hover:bg-red-600 transition" data-student-id="${student.id}">Verwijder</button>
                     </div>
                 `;
-                const modal = document.createElement('div');
-                modal.innerHTML = modalHtml;
-                document.body.appendChild(modal);
-                document.getElementById('close-modal').addEventListener('click', () => {
-                    modal.remove();
-                    onOk();
+                studentList.appendChild(listItem);
+            });
+        };
+        
+        /**
+         * Renders the list of tasks for the teacher to manage.
+         * @param {Array} tasks - An array of task objects.
+         */
+        const renderTasksInClass = (tasks) => {
+            const taskList = document.getElementById('task-list');
+            taskList.innerHTML = '';
+            if (tasks.length === 0) {
+                taskList.innerHTML = '<p class="text-white/70 text-center">Geen taken in deze klas.</p>';
+            }
+            tasks.forEach((task, index) => {
+                const listItem = document.createElement('li');
+                listItem.className = 'glass-card p-4 flex justify-between items-center transform hover:scale-105 transition-transform';
+                listItem.innerHTML = `
+                    <div class="flex-grow">
+                        <span>${task.text}</span>
+                        <span class="text-sm text-yellow-300 ml-2">(${task.points} punten)</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button class="edit-task-btn bg-yellow-500 text-white px-3 py-1 rounded-full text-sm hover:bg-yellow-600 transition" data-task-index="${index}">Bewerk</button>
+                        <button class="remove-task-btn bg-red-500 text-white px-3 py-1 rounded-full text-sm hover:bg-red-600 transition" data-task-index="${index}">Verwijder</button>
+                    </div>
+                `;
+                taskList.appendChild(listItem);
+            });
+        };
+
+        /**
+         * Renders a modal with a student's progress details.
+         * @param {string} studentId - The ID of the student.
+         */
+        const showStudentDetails = async (studentId) => {
+            const studentDocRef = doc(db, `/artifacts/${appId}/users/${studentId}/profile/data`);
+            const studentDoc = await getDoc(studentDocRef);
+            if (!studentDoc.exists()) {
+                showMessage("Studentprofiel niet gevonden.");
+                return;
+            }
+            const studentData = studentDoc.data();
+            const studentTasksColRef = collection(db, `/artifacts/${appId}/users/${studentId}/tasks`);
+            const q = query(studentTasksColRef);
+            const querySnapshot = await getDocs(q);
+            const tasks = [];
+            querySnapshot.forEach(doc => {
+                tasks.push(doc.data());
+            });
+
+            const completedTasks = tasks.filter(t => t.completed).length;
+            const totalTasks = tasks.length;
+            const tasksHtml = tasks.map(task => `<li class="p-2 border-b border-gray-700 last:border-b-0">${task.text} - ${task.completed ? 'Voltooid' : 'Niet voltooid'}</li>`).join('');
+
+            const modalHtml = `
+                <div class="fixed inset-0 bg-gray-900 bg-opacity-70 flex items-center justify-center z-50 p-4">
+                    <div class="bg-blue-600 dark:bg-blue-900 bg-opacity-40 backdrop-blur-lg border border-white/20 p-8 rounded-2xl shadow-xl max-w-lg w-full transform scale-95 transition-all">
+                        <h3 class="text-xl font-bold mb-4">Voortgang van ${studentData.displayName}</h3>
+                        <p class="mb-2">Punten: <span class="font-bold text-yellow-300">${studentData.points || 0}</span></p>
+                        <p class="mb-4">Niveau: <span class="font-bold text-green-300">${studentData.level || 1}</span></p>
+                        <h4 class="font-semibold mt-4 mb-2">Toegewezen taken (${completedTasks}/${totalTasks})</h4>
+                        <ul class="max-h-60 overflow-y-auto">
+                            ${tasksHtml || '<li>Geen taken toegewezen.</li>'}
+                        </ul>
+                        <button id="close-student-modal" class="mt-6 bg-blue-600 text-white px-8 py-3 rounded-full font-bold shadow-lg hover:bg-blue-700 transition">Sluit</button>
+                    </div>
+                </div>
+            `;
+            const modal = document.createElement('div');
+            modal.innerHTML = modalHtml;
+            document.body.appendChild(modal);
+            document.getElementById('close-student-modal').addEventListener('click', () => {
+                modal.remove();
+            });
+        };
+
+        // --- Student UI Rendering Functions ---
+
+        /**
+         * Renders the list of tasks for the student.
+         * @param {Array} tasks - An array of task objects.
+         */
+        const renderStudentTasks = (tasks) => {
+            const taskList = document.getElementById('student-task-list');
+            taskList.innerHTML = '';
+            if (tasks.length === 0) {
+                taskList.innerHTML = '<p class="text-white/70 text-center">Geen taken toegewezen of aangemaakt.</p>';
+            } else {
+                tasks.forEach(task => {
+                    const listItem = createTaskElement(task);
+                    taskList.appendChild(listItem);
                 });
-            };
+            }
+        };
+        
+        /**
+         * Creates a single task list item element.
+         * @param {object} task - The task object.
+         * @returns {HTMLElement} The created list item element.
+         */
+        const createTaskElement = (task) => {
+            const listItem = document.createElement('li');
+            listItem.className = `glass-card p-4 flex justify-between items-center ${task.completed ? 'opacity-50' : ''} transform hover:scale-105 transition-transform`;
+            listItem.innerHTML = `
+                <span>${task.text} (+${task.points} punten)</span>
+                <input type="checkbox" class="task-checkbox h-5 w-5 rounded-md text-green-500 focus:ring-0" data-task-id="${task.id}" ${task.completed ? 'checked' : ''}>
+            `;
+            return listItem;
+        };
+        
+        // --- Quiz Component ---
 
-            // Functie om de punten bij te werken
-            const updatePoints = (amount) => {
-                appState.currentPoints += amount;
-                pointsEl.textContent = appState.currentPoints;
-                saveState();
-            };
+        const quizQuestions = [
+            { question: "Wat is het meervoud van 'stad'?", answer: "steden", points: 25 },
+            { question: "Wat is een synoniem voor 'leuk'?", answer: "gezellig", points: 25 },
+            { question: "Welk woord is een zelfstandig naamwoord: 'rennen', 'mooi' of 'huis'?", answer: "huis", points: 25 },
+            { question: "Vul in: 'Ik heb **het** boek gelezen.'", answer: "het", points: 25 },
+            { question: "Wat is de verleden tijd van 'lopen'?", answer: "liep", points: 25 }
+        ];
 
-            // Functie voor het inloggen
-            const login = (id, name, isTeacher = false) => {
-                if (appState.registeredNames.includes(name) && !isTeacher) {
-                    loadState(name);
-                } else if (!isTeacher) {
-                    appState.registeredNames.push(name);
+        let currentQuestionIndex = 0;
+        let quizTimer;
+
+        /**
+         * Initializes and starts the quiz.
+         */
+        const startQuiz = () => {
+            document.getElementById('quiz-intro').classList.add('hidden');
+            document.getElementById('quiz-container').classList.remove('hidden');
+            currentQuestionIndex = 0;
+            renderQuizQuestion();
+        };
+
+        /**
+         * Renders the current quiz question and starts the timer.
+         */
+        const renderQuizQuestion = () => {
+            if (currentQuestionIndex >= quizQuestions.length) {
+                endQuiz();
+                return;
+            }
+            const questionData = quizQuestions[currentQuestionIndex];
+            document.getElementById('quiz-question').textContent = questionData.question;
+            document.getElementById('quiz-answer-input').value = '';
+            document.getElementById('quiz-feedback').textContent = '';
+            document.getElementById('quiz-timer').textContent = 15;
+            
+            clearInterval(quizTimer);
+            let timeLeft = 15;
+            quizTimer = setInterval(() => {
+                timeLeft--;
+                document.getElementById('quiz-timer').textContent = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(quizTimer);
+                    checkQuizAnswer(true); // Times up
+                }
+            }, 1000);
+        };
+
+        /**
+         * Checks the user's quiz answer.
+         * @param {boolean} timesUp - True if the timer ran out.
+         */
+        const checkQuizAnswer = (timesUp = false) => {
+            clearInterval(quizTimer);
+            const userAnswer = document.getElementById('quiz-answer-input').value.trim().toLowerCase();
+            const correctAnswer = quizQuestions[currentQuestionIndex].answer.toLowerCase();
+            const feedbackEl = document.getElementById('quiz-feedback');
+            
+            if (timesUp) {
+                feedbackEl.textContent = `Tijd is op! Het juiste antwoord was "${correctAnswer}".`;
+            } else if (userAnswer === correctAnswer) {
+                feedbackEl.textContent = `Juist! Goed gedaan. (+${quizQuestions[currentQuestionIndex].points} punten)`;
+                updatePoints(quizQuestions[currentQuestionIndex].points);
+            } else {
+                feedbackEl.textContent = `Onjuist. Het juiste antwoord was "${correctAnswer}".`;
+            }
+            
+            setTimeout(() => {
+                currentQuestionIndex++;
+                renderQuizQuestion();
+            }, 2000);
+        };
+
+        /**
+         * Ends the quiz and returns to the main tasks view.
+         */
+        const endQuiz = () => {
+            document.getElementById('quiz-container').classList.add('hidden');
+            document.getElementById('quiz-intro').classList.remove('hidden');
+            showMessage("Quiz voltooid! Je kunt je nieuwe punten zien op je profiel.");
+        };
+
+        // --- Event Handlers ---
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const loginForm = document.getElementById('login-form');
+            const signupForm = document.getElementById('signup-form');
+            const switchFormBtn = document.getElementById('switch-form-btn');
+            const logoutBtn = document.getElementById('logout-btn');
+            const anonymousLoginBtn = document.getElementById('anonymous-login-btn');
+            const quizStartBtn = document.getElementById('start-quiz-btn');
+            const quizSubmitBtn = document.getElementById('quiz-submit-btn');
+
+            const handleLogin = async (name, password) => {
+                const preconfiguredAccounts = {
+                    'LRd': { isTeacher: true },
+                    'LRl': { isTeacher: false }
+                };
+                const isValidCredentials = password === 'RensTest123' && preconfiguredAccounts[name];
+
+                if (!isValidCredentials) {
+                    showMessage("Ongeldige gebruikersnaam of wachtwoord.");
+                    return;
                 }
                 
-                userIdEl.textContent = `${name} (${id})`;
-                loginScreen.classList.add('hidden');
-                mainContent.classList.remove('hidden');
-                appState.isTeacherLoggedIn = isTeacher;
+                try {
+                    // Create a mock token for the specific user and sign in
+                    const userToken = `mock-token-${name}`;
+                    await signInWithCustomToken(auth, userToken);
+                    
+                    const userDocRef = doc(db, `/artifacts/${appId}/users/${auth.currentUser.uid}/profile/data`);
+                    const userDoc = await getDoc(userDocRef);
 
-                if (isTeacher) {
-                    teacherSection.classList.remove('hidden');
-                    studentOnlyContent.classList.add('hidden');
-                    pointsDisplay.classList.add('hidden');
-                } else {
-                    teacherSection.classList.add('hidden');
-                    studentOnlyContent.classList.remove('hidden');
-                    pointsDisplay.classList.remove('hidden');
+                    if (!userDoc.exists()) {
+                        await setDoc(userDocRef, {
+                            displayName: name,
+                            points: 0,
+                            isTeacher: preconfiguredAccounts[name].isTeacher,
+                            level: 1
+                        });
+                    }
+                    showMessage("Inloggen succesvol!");
+
+                } catch (error) {
+                    showMessage(`Inloggen mislukt: ${error.message}`);
                 }
             };
+            
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const name = loginForm.querySelector('#login-name').value.trim();
+                const password = loginForm.querySelector('#login-password').value.trim();
+                await handleLogin(name, password);
+            });
+            
+            signupForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const name = signupForm.querySelector('#signup-name').value.trim();
+                const password = signupForm.querySelector('#signup-password').value.trim();
+                await handleLogin(name, password);
+            });
+            
+            switchFormBtn.addEventListener('click', () => {
+                loginForm.classList.toggle('hidden');
+                signupForm.classList.toggle('hidden');
+                const isLoginActive = !loginForm.classList.contains('hidden');
+                switchFormBtn.textContent = isLoginActive ? "Nieuw account aanmaken" : "Inloggen";
+            });
 
-            // Login Event Listeners
-            startBtn.addEventListener('click', () => {
-                const userName = loginInput.value.trim();
-                if (userName) {
-                    const userId = 'user-' + Math.random().toString(36).substring(2, 10);
-                    login(userId, userName);
-                } else {
-                    showMessage('Voer een naam in om te beginnen.');
+            anonymousLoginBtn.addEventListener('click', async () => {
+                try {
+                    await signInAnonymously(auth);
+                    showMessage("U bent anoniem ingelogd. Voortgang wordt niet opgeslagen.");
+                } catch (error) {
+                    showMessage(`Fout bij anoniem inloggen: ${error.message}`);
                 }
             });
 
-            googleLoginBtn.addEventListener('click', () => {
-                const userId = 'google-' + Math.random().toString(36).substring(2, 10);
-                login(userId, 'Google Gebruiker');
-            });
-
-            microsoftLoginBtn.addEventListener('click', () => {
-                const userId = 'microsoft-' + Math.random().toString(36).substring(2, 10);
-                login(userId, 'Microsoft Gebruiker');
-            });
-
-            teacherLoginBtn.addEventListener('click', () => {
-                teacherLoginModal.classList.remove('hidden');
-            });
-
-            teacherLoginSubmitBtn.addEventListener('click', () => {
-                const name = teacherNameInput.value.trim();
-                const password = teacherPasswordInput.value.trim();
-                if (name && password === 'docent123') {
-                    const userId = 'docent-' + Math.random().toString(36).substring(2, 10);
-                    login(userId, name, true);
-                    teacherLoginModal.classList.add('hidden');
-                    teacherNameInput.value = '';
-                    teacherPasswordInput.value = '';
-                } else {
-                    showMessage('Ongeldige naam of wachtwoord.');
+            logoutBtn.addEventListener('click', async () => {
+                try {
+                    await signOut(auth);
+                    showMessage("U bent uitgelogd.");
+                } catch (error) {
+                    console.error("Fout bij uitloggen:", error);
                 }
             });
 
-            teacherLoginCloseBtn.addEventListener('click', () => {
-                teacherLoginModal.classList.add('hidden');
-            });
+            initializeAppAndAuth();
+        
+            const themeToggleBtn = document.getElementById('theme-toggle');
+            const body = document.body;
 
-            // Dark Mode Toggle
             themeToggleBtn.addEventListener('click', () => {
                 body.classList.toggle('dark');
-                const isDarkMode = body.classList.contains('dark');
-                if (isDarkMode) {
-                    sunIcon.classList.add('hidden');
-                    moonIcon.classList.remove('hidden');
-                } else {
-                    sunIcon.classList.remove('hidden');
-                    moonIcon.classList.add('hidden');
-                }
             });
 
-            // Navigatie tussen student-secties
+            const navButtons = document.querySelectorAll('.nav-btn');
+            const contentSections = document.querySelectorAll('.content-section');
             navButtons.forEach(btn => {
                 btn.addEventListener('click', () => {
                     const target = btn.dataset.target;
@@ -764,481 +651,493 @@
                 });
             });
 
-            // Teacher Section Logic
-            createClassBtn.addEventListener('click', () => {
-                const className = classNameInput.value.trim();
+            const createClassBtn = document.getElementById('create-class-btn');
+            createClassBtn.addEventListener('click', async () => {
+                const className = document.getElementById('class-name-input').value.trim();
                 if (className) {
-                    appState.classes.push({ name: className, students: [], tasks: [] });
-                    classNameInput.value = '';
-                    renderClasses();
+                    const classesColRef = collection(db, `/artifacts/${appId}/public/data/classes`);
+                    await addDoc(classesColRef, { name: className, createdBy: currentUserId, students: [], tasks: [] });
+                    document.getElementById('class-name-input').value = '';
                 }
             });
 
-            const renderClasses = () => {
-                classList.innerHTML = '';
-                appState.classes.forEach((classObj, index) => {
-                    const listItem = document.createElement('li');
-                    listItem.textContent = classObj.name;
-                    listItem.className = 'bg-white p-3 rounded-md shadow-sm dark:bg-gray-700 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors';
-                    listItem.dataset.index = index;
-                    classList.appendChild(listItem);
-                });
-            };
-
-            classList.addEventListener('click', (event) => {
+            const classList = document.getElementById('class-list');
+            classList.addEventListener('click', async (event) => {
                 const target = event.target;
-                if (target.tagName === 'LI') {
-                    appState.selectedClassIndex = parseInt(target.dataset.index);
-                    const selectedClass = appState.classes[appState.selectedClassIndex];
-                    teacherClassTitle.textContent = `Klas beheren: ${selectedClass.name}`;
-                    renderStudents();
-                    renderTeacherTasks();
-                    classView.classList.add('hidden');
-                    teacherClassManagement.classList.remove('hidden');
+                if (target.matches('li')) {
+                    const classId = target.dataset.id;
+                    await showClassDetails(classId);
                 }
             });
 
-            addStudentBtn.addEventListener('click', () => {
-                const studentName = addStudentInput.value.trim();
-                if (studentName && appState.selectedClassIndex !== null) {
-                    appState.classes[appState.selectedClassIndex].students.push(studentName);
-                    addStudentInput.value = '';
-                    renderStudents();
-                }
-            });
+            const classView = document.getElementById('class-view');
+            classView.addEventListener('click', async (event) => {
+                const target = event.target;
+                const classId = document.getElementById('current-class-id').textContent;
+                const classDocRef = doc(db, `/artifacts/${appId}/public/data/classes/${classId}`);
 
-            assignTaskBtn.addEventListener('click', () => {
-                const task = taskInput.value.trim();
-                if (task && appState.selectedClassIndex !== null) {
-                    appState.classes[appState.selectedClassIndex].tasks.push({ description: task, completed: false });
-                    taskInput.value = '';
-                    renderTeacherTasks();
-                } else if (appState.selectedClassIndex === null) {
-                    showMessage("Selecteer eerst een klas om een taak aan toe te wijzen.");
-                } else {
-                    showMessage("Voer een taakbeschrijving in.");
-                }
-            });
+                if (target.classList.contains('remove-student-btn')) {
+                    const studentIdToRemove = target.dataset.studentId;
+                    const classDoc = await getDoc(classDocRef);
+                    const students = classDoc.data().students.filter(id => id !== studentIdToRemove);
+                    await setDoc(classDocRef, { students }, { merge: true });
+                } else if (target.classList.contains('remove-task-btn')) {
+                    const taskIndex = parseInt(target.dataset.taskIndex);
+                    const classDoc = await getDoc(classDocRef);
+                    const tasks = classDoc.data().tasks;
+                    const removedTask = tasks[taskIndex];
+                    tasks.splice(taskIndex, 1);
+                    await setDoc(classDocRef, { tasks }, { merge: true });
 
-            const renderTeacherTasks = () => {
-                teacherTaskList.innerHTML = '';
-                if (appState.selectedClassIndex !== null) {
-                    const selectedClass = appState.classes[appState.selectedClassIndex];
-                    selectedClass.tasks.forEach(task => {
-                        const listItem = document.createElement('li');
-                        listItem.textContent = task.description;
-                        listItem.className = 'bg-gray-200 p-3 rounded-md shadow-sm dark:bg-gray-600';
-                        teacherTaskList.appendChild(listItem);
-                    });
-                }
-            };
-            
-            requestJoinBtn.addEventListener('click', () => {
-                const className = classJoinInput.value.trim();
-                const foundClass = appState.classes.find(c => c.name === className);
-                if (foundClass) {
-                    joinMessage.textContent = `Verzoek om deel te nemen aan klas "${className}" is verstuurd! De docent moet je nog accepteren.`;
-                    joinMessage.classList.remove('hidden');
-                    // In a real app, this would send a request to the teacher.
-                    // For this simulation, we'll auto-accept and show the tasks.
-                    renderStudentTasks(foundClass.tasks);
-                } else {
-                    joinMessage.textContent = 'Deze klasnaam bestaat niet.';
-                    joinMessage.classList.remove('hidden');
-                }
-                classJoinInput.value = '';
-            });
-
-            const renderStudentTasks = (tasks) => {
-                assignedTasksList.innerHTML = '';
-                if (tasks.length > 0) {
-                    tasks.forEach((task, index) => {
-                        const listItem = document.createElement('li');
-                        listItem.className = 'bg-gray-200 p-3 rounded-md shadow-sm dark:bg-gray-600 flex justify-between items-center';
-                        listItem.innerHTML = `
-                            <span>${task.description}</span>
-                            <button data-index="${index}" class="complete-task-btn bg-blue-600 text-white px-4 py-1 rounded-full text-sm font-bold transition hover:bg-blue-700">Voltooid</button>
-                        `;
-                        assignedTasksList.appendChild(listItem);
-                    });
-
-                    document.querySelectorAll('.complete-task-btn').forEach(button => {
-                        button.addEventListener('click', (event) => {
-                            const taskIndex = event.target.dataset.index;
-                            const task = tasks[taskIndex];
-                            if (!task.completed) {
-                                task.completed = true;
-                                updatePoints(10); // Verdien 10 punten per taak
-                                showMessage(`Goed gedaan! Je hebt de taak voltooid en 10 punten verdiend.`, () => {
-                                    event.target.disabled = true;
-                                    event.target.textContent = 'Voltooid ✅';
-                                    event.target.classList.add('bg-green-600', 'hover:bg-green-700');
-                                    event.target.classList.remove('bg-blue-600', 'hover:bg-blue-700');
-                                });
+                    const studentsInClass = classDoc.data().students || [];
+                    for (const studentId of studentsInClass) {
+                        const studentTasksColRef = collection(db, `/artifacts/${appId}/users/${studentId}/tasks`);
+                        const q = query(studentTasksColRef);
+                        const querySnapshot = await getDocs(q);
+                        querySnapshot.forEach(async (doc) => {
+                            if (doc.data().text === removedTask.text && doc.data().points === removedTask.points) {
+                                await deleteDoc(doc.ref);
                             }
                         });
-                    });
-                } else {
-                     assignedTasksList.innerHTML = '<li class="text-gray-500">Geen taken toegewezen.</li>';
-                }
-            };
-
-            const renderStudents = () => {
-                studentList.innerHTML = '';
-                if (appState.selectedClassIndex !== null) {
-                    const selectedClass = appState.classes[appState.selectedClassIndex];
-                    selectedClass.students.forEach(student => {
-                        const listItem = document.createElement('li');
-                        listItem.textContent = student;
-                        listItem.className = 'bg-white p-3 rounded-md shadow-sm dark:bg-gray-700';
-                        studentList.appendChild(listItem);
-                    });
-                }
-            };
-
-            backToClassesBtn.addEventListener('click', () => {
-                teacherClassManagement.classList.add('hidden');
-                classView.classList.remove('hidden');
-                appState.selectedClassIndex = null;
-            });
-
-            // Lesson Logic
-            const startVocabularyLesson = () => {
-                const category = vocabCategorySelector.value;
-                currentVocabLesson = [...vocabularyLessons[category]]; // Kopieer de array om te manipuleren
-                shuffleArray(currentVocabLesson); // Shuffle de woorden
-                currentWordIndex = 0;
-                displayCurrentWord();
-                translationResultEl.classList.add('hidden');
-            };
-
-            const displayCurrentWord = () => {
-                if (currentWordIndex < currentVocabLesson.length) {
-                    currentWordEl.textContent = currentVocabLesson[currentWordIndex].en;
-                    translationInput.value = '';
-                } else {
-                    showMessage("Gefeliciteerd! Je hebt alle woorden voltooid. Je hebt een bonus van 20 punten verdiend!", () => {
-                        updatePoints(20);
-                        startVocabularyLesson();
-                    });
-                }
-            };
-
-            checkTranslationBtn.addEventListener('click', () => {
-                const userTranslation = translationInput.value.trim().toLowerCase();
-                const correctTranslation = currentVocabLesson[currentWordIndex].nl.toLowerCase();
-                if (userTranslation === correctTranslation) {
-                    translationResultEl.textContent = "Correct! ✅ Je hebt 5 punten verdiend.";
-                    translationResultEl.classList.remove('hidden', 'text-red-500');
-                    translationResultEl.classList.add('text-green-500');
-                    updatePoints(5);
-                    currentWordIndex++;
-                    setTimeout(displayCurrentWord, 1000);
-                } else {
-                    translationResultEl.textContent = `Onjuist! ❌ Het juiste antwoord was "${correctTranslation}". Probeer het opnieuw!`;
-                    translationResultEl.classList.remove('hidden', 'text-green-500');
-                    translationResultEl.classList.add('text-red-500');
+                    }
+                } else if (target.classList.contains('view-student-btn')) {
+                    const studentIdToView = target.dataset.studentId;
+                    showStudentDetails(studentIdToView);
                 }
             });
-
-            vocabCategorySelector.addEventListener('change', startVocabularyLesson);
-
-            // Quiz Logic
-            let quizScore = 0;
-            const startQuiz = () => {
-                currentQuizQuestionIndex = 0;
-                quizScore = 0;
-                quizScoreEl.textContent = '';
-                quizFeedbackEl.textContent = '';
-                nextQuizBtn.classList.add('hidden');
-                displayQuizQuestion();
-            };
-
-            const displayQuizQuestion = () => {
-                if (currentQuizQuestionIndex >= quizzes.length) {
-                    showMessage(`Quiz voltooid! Je hebt ${quizScore} van de ${quizzes.length} vragen goed beantwoord. Je hebt ${quizScore * 5} punten verdiend!`, () => {
-                        updatePoints(quizScore * 5);
-                        startQuiz(); // Herstart de quiz voor de volgende keer
-                    });
-                    return;
-                }
-
-                const currentQuiz = quizzes[currentQuizQuestionIndex];
-                questionTextEl.textContent = currentQuiz.question;
-                answerOptionsEl.innerHTML = '';
-                shuffleArray(currentQuiz.options).forEach(option => {
-                    const button = document.createElement('button');
-                    button.textContent = option;
-                    button.className = 'bg-blue-600 text-white px-4 py-2 rounded-lg transition hover:bg-blue-700';
-                    button.addEventListener('click', () => checkQuizAnswer(option));
-                    answerOptionsEl.appendChild(button);
-                });
-
-                quizFeedbackEl.textContent = '';
-                nextQuizBtn.classList.add('hidden');
-            };
-
-            const checkQuizAnswer = (selectedOption) => {
-                const currentQuiz = quizzes[currentQuizQuestionIndex];
-                if (selectedOption === currentQuiz.answer) {
-                    quizFeedbackEl.textContent = "Correct! ✅";
-                    quizFeedbackEl.classList.remove('text-red-500');
-                    quizFeedbackEl.classList.add('text-green-500');
-                    quizScore++;
-                } else {
-                    quizFeedbackEl.textContent = `Onjuist! ❌ Het juiste antwoord was "${currentQuiz.answer}".`;
-                    quizFeedbackEl.classList.remove('text-green-500');
-                    quizFeedbackEl.classList.add('text-red-500');
-                }
-                
-                quizScoreEl.textContent = `Huidige Score: ${quizScore}/${quizzes.length}`;
-                answerOptionsEl.querySelectorAll('button').forEach(btn => btn.disabled = true);
-                nextQuizBtn.classList.remove('hidden');
-            };
-
-            nextQuizBtn.addEventListener('click', () => {
-                currentQuizQuestionIndex++;
-                displayQuizQuestion();
-            });
-
-            // Hangman Logic
-            const setupHangmanGame = () => {
-                hangmanWord = hangmanWords[Math.floor(Math.random() * hangmanWords.length)].toUpperCase();
-                guessedLetters = [];
-                mistakes = 0;
-                hangmanMessageEl.textContent = '';
-                hangmanRestartBtn.classList.add('hidden');
-                updateHangmanUI();
-                createKeyboard();
-            };
-
-            const updateHangmanUI = () => {
-                hangmanDrawingEl.textContent = hangmanStages[mistakes];
-                let displayedWord = "";
-                for (const char of hangmanWord) {
-                    if (guessedLetters.includes(char)) {
-                        displayedWord += char + " ";
-                    } else {
-                        displayedWord += "_ ";
-                    }
-                }
-                hangmanWordDisplayEl.textContent = displayedWord.trim();
-            };
-
-            const createKeyboard = () => {
-                hangmanKeyboardEl.innerHTML = '';
-                for (let i = 65; i <= 90; i++) {
-                    const letter = String.fromCharCode(i);
-                    const button = document.createElement('button');
-                    button.textContent = letter;
-                    button.addEventListener('click', () => handleGuess(letter));
-                    hangmanKeyboardEl.appendChild(button);
-                }
-            };
-
-            const handleGuess = (letter) => {
-                if (guessedLetters.includes(letter)) return;
-                guessedLetters.push(letter);
-                const button = Array.from(hangmanKeyboardEl.children).find(btn => btn.textContent === letter);
-                if (button) button.disabled = true;
-
-                if (hangmanWord.includes(letter)) {
-                    updateHangmanUI();
-                    if (!hangmanWordDisplayEl.textContent.includes('_')) {
-                        winGame();
-                    }
-                } else {
-                    mistakes++;
-                    updateHangmanUI();
-                    if (mistakes >= maxMistakes) {
-                        loseGame();
-                    }
-                }
-            };
-
-            const winGame = () => {
-                hangmanMessageEl.textContent = "Gefeliciteerd! Je hebt het woord geraden! 🎉";
-                updatePoints(20);
-                showMessage("Je hebt het galgenman spel gewonnen en 20 punten verdiend!", () => {
-                    hangmanRestartBtn.classList.remove('hidden');
-                });
-                hangmanKeyboardEl.innerHTML = '';
-            };
-
-            const loseGame = () => {
-                hangmanMessageEl.textContent = `Helaas, je hebt verloren. Het woord was "${hangmanWord}".`;
-                showMessage(`Helaas, je hebt verloren. Het woord was "${hangmanWord}". Probeer het opnieuw!`, () => {
-                    hangmanRestartBtn.classList.remove('hidden');
-                });
-                hangmanKeyboardEl.innerHTML = '';
-            };
-
-            hangmanRestartBtn.addEventListener('click', setupHangmanGame);
-
-            // Kwadrantenspel Logic
-            const setupQuadrantGame = () => {
-                wordBankEl.innerHTML = '';
-                const allWords = [
-                    ...quadrantData.dieren,
-                    ...quadrantData.eten,
-                    ...quadrantData.reizen,
-                    ...quadrantData.beroepen
-                ];
-                shuffleArray(allWords);
-
-                allWords.forEach(word => {
-                    const wordEl = document.createElement('div');
-                    wordEl.textContent = word;
-                    wordEl.className = 'quadrant-word';
-                    wordEl.draggable = true;
-                    wordEl.dataset.word = word;
-                    wordBankEl.appendChild(wordEl);
-                });
-            };
-
-            const handleDragStart = (e) => {
-                dragSourceEl = e.target;
-                e.dataTransfer.effectAllowed = 'move';
-                e.dataTransfer.setData('text/plain', dragSourceEl.dataset.word);
-            };
-
-            const handleDragOver = (e) => {
-                e.preventDefault();
-                e.dataTransfer.dropEffect = 'move';
-            };
-
-            const handleDragEnter = (e) => {
-                e.preventDefault();
-                e.target.closest('.quadrant-zone').classList.add('drag-over');
-            };
-
-            const handleDragLeave = (e) => {
-                e.target.closest('.quadrant-zone').classList.remove('drag-over');
-            };
-
-            const handleDrop = (e) => {
-                e.preventDefault();
-                const targetZone = e.target.closest('.quadrant-zone');
-                if (targetZone && dragSourceEl) {
-                    targetZone.classList.remove('drag-over');
-                    targetZone.appendChild(dragSourceEl);
-                    dragSourceEl = null;
-                }
-            };
-
-            const checkQuadrantAnswers = () => {
-                let correctAnswers = 0;
-                let totalWords = 0;
-                
-                const zones = document.querySelectorAll('.quadrant-zone');
-                zones.forEach(zone => {
-                    const category = zone.dataset.category;
-                    const wordsInZone = zone.querySelectorAll('.quadrant-word');
-                    totalWords += wordsInZone.length;
-
-                    wordsInZone.forEach(wordEl => {
-                        const word = wordEl.dataset.word;
-                        if (quadrantData[category].includes(word)) {
-                            correctAnswers++;
-                            wordEl.style.backgroundColor = '#10b981'; // Groen voor goed
-                        } else {
-                            wordEl.style.backgroundColor = '#ef4444'; // Rood voor fout
-                        }
-                    });
-                });
-
-                const pointsEarned = correctAnswers * 5;
-                updatePoints(pointsEarned);
-                showMessage(`Je hebt ${correctAnswers} van de ${totalWords} woorden correct geplaatst! Je hebt ${pointsEarned} punten verdiend!`, setupQuadrantGame);
-            };
             
-            document.querySelectorAll('.quadrant-zone').forEach(zone => {
-                zone.addEventListener('dragenter', handleDragEnter);
-                zone.addEventListener('dragover', handleDragOver);
-                zone.addEventListener('dragleave', handleDragLeave);
-                zone.addEventListener('drop', handleDrop);
+            const addTaskToClassBtn = document.getElementById('add-task-to-class-btn');
+            addTaskToClassBtn.addEventListener('click', async () => {
+                const taskText = document.getElementById('task-text-input').value.trim();
+                const taskPoints = parseInt(document.getElementById('task-points-input').value);
+                const classId = document.getElementById('current-class-id').textContent;
+                
+                if (taskText && !isNaN(taskPoints) && classId) {
+                    try {
+                        const classDocRef = doc(db, `/artifacts/${appId}/public/data/classes/${classId}`);
+                        const classDoc = await getDoc(classDocRef);
+                        const tasks = classDoc.data().tasks || [];
+                        const students = classDoc.data().students || [];
+                        
+                        const newTask = { text: taskText, points: taskPoints };
+                        await setDoc(classDocRef, { tasks: [...tasks, newTask] }, { merge: true });
+
+                        for (const studentId of students) {
+                            const studentTasksColRef = collection(db, `/artifacts/${appId}/users/${studentId}/tasks`);
+                            await addDoc(studentTasksColRef, {
+                                text: newTask.text,
+                                points: newTask.points,
+                                completed: false
+                            });
+                        }
+
+                        showMessage("Taak succesvol toegevoegd!");
+                        document.getElementById('task-text-input').value = '';
+                        document.getElementById('task-points-input').value = '';
+                    } catch (error) {
+                        showMessage(`Fout bij het toevoegen van taak: ${error.message}`);
+                    }
+                }
             });
 
-            document.addEventListener('dragstart', handleDragStart);
-            checkQuadrantsBtn.addEventListener('click', checkQuadrantAnswers);
+            const returnToClassesBtn = document.getElementById('return-to-classes-btn');
+            returnToClassesBtn.addEventListener('click', () => {
+                document.getElementById('class-view').classList.add('hidden');
+                document.getElementById('teacher-class-management').classList.remove('hidden');
+            });
 
-            // Shop Logic
-            const renderShopItems = () => {
-                shopItemsContainer.innerHTML = '';
-                shopItems.forEach(item => {
-                    const itemHtml = `
-                        <div class="shop-item bg-white p-4 rounded-lg shadow-md flex items-center justify-between">
-                            <div class="flex items-center">
-                                <span class="text-4xl mr-4">${item.icon}</span>
-                                <div>
-                                    <p class="font-bold">${item.name}</p>
-                                    <p class="text-gray-500 text-sm">Kosten: ${item.cost} punten</p>
-                                </div>
-                            </div>
-                            <button class="buy-btn bg-blue-600 text-white px-6 py-2 rounded-full font-bold transition hover:bg-blue-700" data-id="${item.id}">Koop</button>
-                        </div>
-                    `;
-                    shopItemsContainer.innerHTML += itemHtml;
-                });
-
-                document.querySelectorAll('.buy-btn').forEach(button => {
-                    button.addEventListener('click', (event) => {
-                        const itemId = parseInt(event.target.dataset.id);
-                        const item = shopItems.find(i => i.id === itemId);
-                        
-                        if (appState.currentPoints >= item.cost) {
-                            updatePoints(-item.cost);
-                            showMessage(`Je hebt "${item.name}" gekocht voor ${item.cost} punten!`, () => {
-                                // Specifieke acties voor gekochte items
-                                if (itemId === 3) { // Nederlandse mop
-                                    showMessage("Waarom liepen de twee tomaten door de stad? Omdat de ene dacht dat de andere een rode lantaarn was!");
-                                } else if (itemId === 6) { // Bonus Vraag
-                                    updatePoints(20);
-                                    showMessage("Je hebt een bonus van 20 punten verdiend! Ga zo door!");
-                                } else if (itemId === 7) { // Nieuwe Achtergrond
-                                    const backgrounds = ['#e0f7fa', '#fce4ec', '#fffde7', '#e8f5e9'];
-                                    const newBg = backgrounds[Math.floor(Math.random() * backgrounds.length)];
-                                    document.body.style.backgroundColor = newBg;
-                                    document.body.classList.remove('dark');
-                                    showMessage("Je hebt een nieuwe achtergrond gekocht!");
-                                } else if (itemId === 8) { // Joker
-                                    if (hangmanWord) {
-                                        const unguessed = hangmanWord.split('').filter(char => !guessedLetters.includes(char));
-                                        if (unguessed.length > 0) {
-                                            const randomLetter = unguessed[Math.floor(Math.random() * unguessed.length)];
-                                            handleGuess(randomLetter);
-                                            showMessage(`Je hebt de joker gebruikt en de letter '${randomLetter}' is onthuld!`);
-                                        } else {
-                                            showMessage("Er zijn geen ongeraden letters meer!");
-                                        }
-                                    } else {
-                                        showMessage("Je kunt de joker pas gebruiken als je een spelletje Galgenman speelt.");
-                                    }
-                                }
-                            });
+            const studentTaskList = document.getElementById('student-task-list');
+            studentTaskList.addEventListener('change', async (event) => {
+                const target = event.target;
+                if (target.classList.contains('task-checkbox')) {
+                    const taskId = target.dataset.taskId;
+                    const isCompleted = target.checked;
+                    const taskDocRef = doc(db, `/artifacts/${appId}/users/${currentUserId}/tasks/${taskId}`);
+                    const taskDoc = await getDoc(taskDocRef);
+                    if (taskDoc.exists()) {
+                        const taskData = taskDoc.data();
+                        await setDoc(taskDocRef, { completed: isCompleted }, { merge: true });
+                        if (isCompleted) {
+                            await updatePoints(taskData.points);
                         } else {
-                            showMessage(`Niet genoeg punten! Je hebt ${appState.currentPoints} punten, maar dit item kost ${item.cost} punten.`);
+                            await updatePoints(-taskData.points);
                         }
-                    });
-                });
-            };
-
-            // Hulpprogramma-functie om een array te schudden
-            const shuffleArray = (array) => {
-                for (let i = array.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [array[i], array[j]] = [array[j], array[i]];
+                    }
                 }
-                return array;
-            };
+            });
 
-            // Initialisatie functies aanroepen
-            startVocabularyLesson();
-            setupHangmanGame();
-            setupQuadrantGame();
-            startQuiz();
-            renderShopItems();
+            const joinClassBtn = document.getElementById('join-class-btn');
+            joinClassBtn.addEventListener('click', async () => {
+                const classId = document.getElementById('join-class-input').value.trim();
+                if (classId) {
+                    try {
+                        const classDocRef = doc(db, `/artifacts/${appId}/public/data/classes/${classId}`);
+                        const classDoc = await getDoc(classDocRef);
+                        if (!classDoc.exists()) {
+                            showMessage("Klas met deze ID bestaat niet.");
+                            return;
+                        }
+
+                        const classData = classDoc.data();
+                        const students = classData.students || [];
+                        if (students.includes(currentUserId)) {
+                            showMessage("Je zit al in deze klas.");
+                            return;
+                        }
+
+                        await setDoc(classDocRef, { students: [...students, currentUserId] }, { merge: true });
+                        
+                        const tasks = classData.tasks || [];
+                        const studentTasksColRef = collection(db, `/artifacts/${appId}/users/${currentUserId}/tasks`);
+                        for (const task of tasks) {
+                            await addDoc(studentTasksColRef, {
+                                text: task.text,
+                                points: task.points,
+                                completed: false
+                            });
+                        }
+                        showMessage("Je bent succesvol lid geworden van de klas!");
+                        document.getElementById('join-class-input').value = '';
+                    } catch (error) {
+                        showMessage(`Fout bij het lid worden van de klas: ${error.message}`);
+                    }
+                }
+            });
+
+            const createStudentTaskBtn = document.getElementById('create-student-task-btn');
+            createStudentTaskBtn.addEventListener('click', async () => {
+                const taskText = document.getElementById('create-task-text-input').value.trim();
+                const taskPoints = parseInt(document.getElementById('create-task-points-input').value);
+                
+                if (taskText && !isNaN(taskPoints)) {
+                    try {
+                        const studentTasksColRef = collection(db, `/artifacts/${appId}/users/${currentUserId}/tasks`);
+                        await addDoc(studentTasksColRef, {
+                            text: taskText,
+                            points: taskPoints,
+                            completed: false
+                        });
+                        showMessage("Taak succesvol aangemaakt!");
+                        document.getElementById('create-task-text-input').value = '';
+                        document.getElementById('create-task-points-input').value = '';
+                    } catch (error) {
+                        showMessage(`Fout bij het aanmaken van de taak: ${error.message}`);
+                    }
+                }
+            });
+
+            // Quiz Event Listeners
+            quizStartBtn.addEventListener('click', startQuiz);
+            quizSubmitBtn.addEventListener('click', () => checkQuizAnswer());
+            document.getElementById('quiz-answer-input').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    checkQuizAnswer();
+                }
+            });
         });
+
     </script>
+    <style>
+        /* General Styles */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a, #1e3a8a, #0f172a);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+            color: #e2e8f0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .dark body {
+            background: linear-gradient(135deg, #000000, #1a202c, #000000);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease-in-out;
+        }
+
+        .dark .glass-card {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        input[type="text"], input[type="password"], input[type="number"], select {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            width: 100%;
+            outline: none;
+            transition: all 0.2s ease-in-out;
+        }
+        
+        input[type="text"]:focus, input[type="password"]:focus, input[type="number"]:focus, select:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px;
+            font-weight: bold;
+            transition: all 0.2s ease-in-out;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background-color: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #2563eb;
+        }
+        
+        .btn-secondary {
+            background-color: #8b5cf6;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #7c3aed;
+        }
+
+        .btn-success {
+            background-color: #22c55e;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background-color: #16a34a;
+        }
+
+        .btn-danger {
+            background-color: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+
+        .btn-info {
+            background-color: #f59e0b;
+            color: white;
+        }
+        
+        .btn-info:hover {
+            background-color: #d97706;
+        }
+
+        .progress-bar-container {
+            height: 1.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 9999px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(to right, #22d3ee, #3b82f6);
+            border-radius: 9999px;
+            transition: width 0.5s ease-in-out;
+        }
+
+    </style>
+</head>
+<body class="bg-gray-900 dark:bg-gray-900 text-white flex flex-col p-4">
+
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-70 z-50">
+        <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
+    </div>
+
+    <!-- Login Screen -->
+    <div id="login-screen" class="fixed inset-0 flex items-center justify-center p-4">
+        <div class="w-full max-w-md p-8 glass-card">
+            <h1 class="text-3xl font-bold text-center mb-6">Welkom bij Duik in het Nederlands</h1>
+            <div id="login-form" class="space-y-4">
+                <h2 class="text-xl font-semibold text-center">Inloggen</h2>
+                <input type="text" id="login-name" placeholder="Gebruikersnaam" class="w-full p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                <input type="password" id="login-password" placeholder="Wachtwoord" class="w-full p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                <button type="submit" class="w-full btn btn-primary">Inloggen</button>
+            </div>
+            <div id="signup-form" class="space-y-4 hidden">
+                <h2 class="text-xl font-semibold text-center">Nieuw account aanmaken</h2>
+                <p class="text-white/70 text-sm text-center">Voor de demo, gebruik **LRd** (docent) of **LRl** (leerling) als gebruikersnaam met het wachtwoord **RensTest123**.</p>
+                <input type="text" id="signup-name" placeholder="Gebruikersnaam (LRd of LRl)" class="w-full p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-500 transition">
+                <input type="password" id="signup-password" placeholder="Wachtwoord" class="w-full p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-500 transition">
+                <button type="submit" class="w-full btn btn-success">Account aanmaken</button>
+            </div>
+            <div class="mt-4 text-center">
+                <button id="switch-form-btn" class="text-sm text-blue-300 hover:underline">Nieuw account aanmaken</button>
+            </div>
+            <div class="mt-4 text-center">
+                <button id="anonymous-login-btn" class="text-sm text-blue-300 hover:underline">Ga verder als anonieme gebruiker</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="main-content" class="hidden w-full max-w-4xl mx-auto space-y-6 pb-8">
+        <header class="flex flex-col md:flex-row items-center justify-between p-4 glass-card">
+            <h1 class="text-2xl md:text-3xl font-bold">Duik in het Nederlands</h1>
+            <div class="flex items-center space-x-4 mt-4 md:mt-0">
+                <div class="flex flex-col items-end">
+                    <span id="user-profile-name" class="font-semibold"></span>
+                    <span id="user-id-display" class="text-sm text-white/70"></span>
+                </div>
+                <div class="relative">
+                    <button id="logout-btn" class="btn btn-danger">Uitloggen</button>
+                </div>
+            </div>
+        </header>
+
+        <nav class="flex justify-center md:justify-start space-x-2 md:space-x-4 p-2 glass-card">
+            <button class="nav-btn btn btn-primary" data-target="tasks-section">Taken & Voortgang</button>
+            <button class="nav-btn btn btn-info" data-target="quiz-section">Quizzen</button>
+            <button id="teacher-section-btn" class="nav-btn btn btn-secondary hidden" data-target="teacher-section">Docent</button>
+        </nav>
+
+        <!-- Tasks and Progress Section (Student) -->
+        <div id="tasks-section" class="content-section space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- My Profile and Progress Card -->
+                <div class="p-6 glass-card">
+                    <h2 class="text-xl font-semibold mb-4">Mijn Profiel</h2>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <p class="font-bold">Punten:</p>
+                            <span id="points" class="text-xl text-yellow-300 font-bold">0</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <p class="font-bold">Niveau:</p>
+                            <span id="level" class="text-xl text-green-300 font-bold">1</span>
+                        </div>
+                        <div>
+                            <p class="font-bold mb-2">Voortgang naar volgend niveau:</p>
+                            <div class="relative progress-bar-container">
+                                <div id="progress-bar" class="progress-bar" style="width: 0%;"></div>
+                                <span id="progress-text" class="absolute inset-0 flex items-center justify-center text-sm font-semibold">0 / 100 punten</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Student Tasks and Class Management Card -->
+                <div id="student-only-content" class="p-6 glass-card">
+                    <h2 class="text-xl font-semibold mb-4">Taken</h2>
+                    
+                    <div class="space-y-2 mb-4">
+                        <h3 class="font-semibold">Maak een eigen taak</h3>
+                        <input type="text" id="create-task-text-input" placeholder="Taakomschrijving" class="w-full p-2 rounded-lg text-black">
+                        <input type="number" id="create-task-points-input" placeholder="Aantal punten" class="w-full p-2 rounded-lg text-black">
+                        <button id="create-student-task-btn" class="w-full btn btn-success">Voeg taak toe</button>
+                    </div>
+
+                    <div class="flex items-center space-x-2 mb-4">
+                        <input type="text" id="join-class-input" placeholder="Word lid van een klas (ID)" class="w-full p-2 rounded-lg text-black">
+                        <button id="join-class-btn" class="btn btn-info px-4 py-2">Word lid</button>
+                    </div>
+
+                    <ul id="student-task-list" class="space-y-4">
+                        <!-- Tasks will be loaded here dynamically -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz Section (Student) -->
+        <div id="quiz-section" class="content-section hidden space-y-6">
+            <div id="quiz-intro" class="p-6 glass-card text-center">
+                <h2 class="text-2xl font-semibold mb-4">Test je kennis!</h2>
+                <p class="mb-6">Doe een quiz om extra punten te verdienen. Elke quiz bestaat uit 5 vragen.</p>
+                <button id="start-quiz-btn" class="btn btn-primary">Start de quiz</button>
+            </div>
+
+            <div id="quiz-container" class="p-6 glass-card hidden space-y-4">
+                <h2 class="text-2xl font-semibold text-center mb-4">Quiz</h2>
+                <div class="text-lg font-bold">
+                    <p>Vraag <span id="current-question-number">1</span>/5</p>
+                    <p id="quiz-question"></p>
+                </div>
+                <div class="flex items-center justify-between text-lg">
+                    <p>Tijd over: <span id="quiz-timer" class="font-bold text-yellow-300">15</span>s</p>
+                    <p id="quiz-feedback" class="font-semibold"></p>
+                </div>
+                <div class="flex space-x-2">
+                    <input type="text" id="quiz-answer-input" placeholder="Jouw antwoord" class="flex-grow p-3 rounded-xl text-black">
+                    <button id="quiz-submit-btn" class="btn btn-success">Verstuur</button>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Teacher Section -->
+        <div id="teacher-section" class="content-section hidden space-y-6">
+            <div id="teacher-class-management" class="p-6 glass-card">
+                <h2 class="text-xl font-semibold mb-4">Mijn Klassen</h2>
+                <div class="flex space-x-2 mb-4">
+                    <input type="text" id="class-name-input" placeholder="Nieuwe klasnaam" class="w-full p-2 rounded-lg text-black">
+                    <button id="create-class-btn" class="btn btn-primary">Maak aan</button>
+                </div>
+                <ul id="class-list" class="space-y-4">
+                    <!-- Classes will be loaded here dynamically -->
+                </ul>
+            </div>
+
+            <div id="class-view" class="hidden p-6 glass-card">
+                <button id="return-to-classes-btn" class="btn btn-secondary mb-4">Terug naar klassen</button>
+                <h2 class="text-xl font-semibold mb-2">Klas: <span id="current-class-name" class="font-bold"></span></h2>
+                <p class="text-sm text-white/70 mb-4">Klas-ID: <span id="current-class-id" class="font-mono text-xs break-all"></span></p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Student Management Card -->
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4">Studenten & Ranglijst</h3>
+                        <div class="flex space-x-2 mb-4">
+                            <input type="text" id="student-id-input" placeholder="Student ID" class="w-full p-2 rounded-lg text-black">
+                            <button id="add-student-to-class-btn" class="btn btn-primary px-4 py-2">Voeg toe</button>
+                        </div>
+                        <ul id="student-list" class="space-y-4">
+                            <!-- Students will be loaded here dynamically -->
+                        </ul>
+                    </div>
+
+                    <!-- Task Management Card -->
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4">Taken</h3>
+                        <div class="space-y-2 mb-4">
+                            <input type="text" id="task-text-input" placeholder="Nieuwe taakbeschrijving" class="w-full p-2 rounded-lg text-black">
+                            <input type="number" id="task-points-input" placeholder="Punten" class="w-full p-2 rounded-lg text-black">
+                            <button id="add-task-to-class-btn" class="w-full btn btn-success">Voeg taak toe</button>
+                        </div>
+                        <ul id="task-list" class="space-y-4">
+                            <!-- Tasks will be loaded here dynamically -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
