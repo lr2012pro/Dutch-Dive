@@ -35,11 +35,23 @@
          */
         const initializeAppAndAuth = async () => {
             setLogLevel('Debug');
+            
+            // Check for valid Firebase configuration before initializing
+            if (!firebaseConfig || !firebaseConfig.apiKey) {
+                console.error("Firebase Initialization Error: Invalid or missing API Key in configuration.");
+                showMessage("Fout: De app kan niet verbinden met de database. Controleer de configuratie.", () => {
+                     // Optionally, hide loading screen to prevent app from being stuck
+                    document.getElementById('loading-screen').classList.add('hidden');
+                });
+                return;
+            }
+
             try {
                 app = initializeApp(firebaseConfig);
                 auth = getAuth(app);
                 db = getFirestore(app);
-
+                
+                // Set up authentication state listener
                 onAuthStateChanged(auth, async (user) => {
                     if (user) {
                         currentUserId = user.uid;
@@ -60,8 +72,11 @@
                     }
                 });
 
+                // Sign in with the provided custom token or anonymously as a fallback
                 if (initialAuthToken) {
                     await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
                 }
             } catch (error) {
                 console.error("Fout bij het initialiseren van Firebase:", error);
@@ -549,75 +564,17 @@
             const signupForm = document.getElementById('signup-form');
             const switchFormBtn = document.getElementById('switch-form-btn');
             const logoutBtn = document.getElementById('logout-btn');
-            const anonymousLoginBtn = document.getElementById('anonymous-login-btn');
-            const quizStartBtn = document.getElementById('start-quiz-btn');
-            const quizSubmitBtn = document.getElementById('quiz-submit-btn');
+            
+            // Remove the old login forms as they are not needed with the new auth flow
+            loginForm.classList.add('hidden');
+            signupForm.classList.add('hidden');
+            switchFormBtn.classList.add('hidden');
 
             const handleLogin = async (name, password) => {
-                const preconfiguredAccounts = {
-                    'LRd': { isTeacher: true },
-                    'LRl': { isTeacher: false }
-                };
-                const isValidCredentials = password === 'RensTest123' && preconfiguredAccounts[name];
-
-                if (!isValidCredentials) {
-                    showMessage("Ongeldige gebruikersnaam of wachtwoord.");
-                    return;
-                }
-                
-                try {
-                    // Create a mock token for the specific user and sign in
-                    const userToken = `mock-token-${name}`;
-                    await signInWithCustomToken(auth, userToken);
-                    
-                    const userDocRef = doc(db, `/artifacts/${appId}/users/${auth.currentUser.uid}/profile/data`);
-                    const userDoc = await getDoc(userDocRef);
-
-                    if (!userDoc.exists()) {
-                        await setDoc(userDocRef, {
-                            displayName: name,
-                            points: 0,
-                            isTeacher: preconfiguredAccounts[name].isTeacher,
-                            level: 1
-                        });
-                    }
-                    showMessage("Inloggen succesvol!");
-
-                } catch (error) {
-                    showMessage(`Inloggen mislukt: ${error.message}`);
-                }
+                // This function is now obsolete with the new auth flow
+                // The onAuthStateChanged listener handles login automatically
             };
             
-            loginForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const name = loginForm.querySelector('#login-name').value.trim();
-                const password = loginForm.querySelector('#login-password').value.trim();
-                await handleLogin(name, password);
-            });
-            
-            signupForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const name = signupForm.querySelector('#signup-name').value.trim();
-                const password = signupForm.querySelector('#signup-password').value.trim();
-                await handleLogin(name, password);
-            });
-            
-            switchFormBtn.addEventListener('click', () => {
-                loginForm.classList.toggle('hidden');
-                signupForm.classList.toggle('hidden');
-                const isLoginActive = !loginForm.classList.contains('hidden');
-                switchFormBtn.textContent = isLoginActive ? "Nieuw account aanmaken" : "Inloggen";
-            });
-
-            anonymousLoginBtn.addEventListener('click', async () => {
-                try {
-                    await signInAnonymously(auth);
-                    showMessage("U bent anoniem ingelogd. Voortgang wordt niet opgeslagen.");
-                } catch (error) {
-                    showMessage(`Fout bij anoniem inloggen: ${error.message}`);
-                }
-            });
-
             logoutBtn.addEventListener('click', async () => {
                 try {
                     await signOut(auth);
@@ -827,13 +784,23 @@
             });
 
             // Quiz Event Listeners
-            quizStartBtn.addEventListener('click', startQuiz);
-            quizSubmitBtn.addEventListener('click', () => checkQuizAnswer());
-            document.getElementById('quiz-answer-input').addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
-                    checkQuizAnswer();
-                }
-            });
+            const quizStartBtn = document.getElementById('start-quiz-btn');
+            const quizSubmitBtn = document.getElementById('quiz-submit-btn');
+            const quizAnswerInput = document.getElementById('quiz-answer-input');
+
+            if (quizStartBtn) {
+                quizStartBtn.addEventListener('click', startQuiz);
+            }
+            if (quizSubmitBtn) {
+                quizSubmitBtn.addEventListener('click', () => checkQuizAnswer());
+            }
+            if (quizAnswerInput) {
+                quizAnswerInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        checkQuizAnswer();
+                    }
+                });
+            }
         });
 
     </script>
@@ -972,28 +939,11 @@
     </div>
 
     <!-- Login Screen -->
-    <div id="login-screen" class="fixed inset-0 flex items-center justify-center p-4">
+    <div id="login-screen" class="fixed inset-0 flex items-center justify-center p-4 hidden">
         <div class="w-full max-w-md p-8 glass-card">
             <h1 class="text-3xl font-bold text-center mb-6">Welkom bij Duik in het Nederlands</h1>
-            <div id="login-form" class="space-y-4">
-                <h2 class="text-xl font-semibold text-center">Inloggen</h2>
-                <input type="text" id="login-name" placeholder="Gebruikersnaam" class="w-full p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
-                <input type="password" id="login-password" placeholder="Wachtwoord" class="w-full p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
-                <button type="submit" class="w-full btn btn-primary">Inloggen</button>
-            </div>
-            <div id="signup-form" class="space-y-4 hidden">
-                <h2 class="text-xl font-semibold text-center">Nieuw account aanmaken</h2>
-                <p class="text-white/70 text-sm text-center">Voor de demo, gebruik **LRd** (docent) of **LRl** (leerling) als gebruikersnaam met het wachtwoord **RensTest123**.</p>
-                <input type="text" id="signup-name" placeholder="Gebruikersnaam (LRd of LRl)" class="w-full p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-500 transition">
-                <input type="password" id="signup-password" placeholder="Wachtwoord" class="w-full p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-500 transition">
-                <button type="submit" class="w-full btn btn-success">Account aanmaken</button>
-            </div>
-            <div class="mt-4 text-center">
-                <button id="switch-form-btn" class="text-sm text-blue-300 hover:underline">Nieuw account aanmaken</button>
-            </div>
-            <div class="mt-4 text-center">
-                <button id="anonymous-login-btn" class="text-sm text-blue-300 hover:underline">Ga verder als anonieme gebruiker</button>
-            </div>
+            <h2 class="text-xl font-semibold text-center">Inloggen</h2>
+            <p class="text-white/70 text-sm text-center">U wordt automatisch ingelogd als anonieme gebruiker. Uw voortgang wordt opgeslagen.</p>
         </div>
     </div>
 
