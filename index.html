@@ -14,7 +14,15 @@
 
         // Global variables from the Canvas environment.
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const firebaseConfig = {
+            apiKey: "AIzaSyB01Sy-zt7z4eaKmBYEF-TuhtrXYvwa_7U",
+            authDomain: "balhaar-7c419.firebaseapp.com",
+            projectId: "balhaar-7c419",
+            storageBucket: "balhaar-7c419.firebasestorage.app",
+            messagingSenderId: "920509175976",
+            appId: "1:920509175976:web:476e4c4f4f25c4b0274a9d",
+            measurementId: "G-D2MQEDHERZ"
+        };
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : '';
         
         // Global Firestore and Auth instances
@@ -27,20 +35,13 @@
         let userPoints = 0;
         let unsubscribeClassListener = null;
 
-        // --- Core Application Functions ---
-
-        /**
-         * Initializes Firebase app and authentication.
-         * Sets up the main authentication state listener.
-         */
-        const initializeAppAndAuth = async () => {
-            setLogLevel('Debug');
+        const start = async () => {
+             setLogLevel('Debug');
             
             // Check for valid Firebase configuration before initializing
             if (!firebaseConfig || !firebaseConfig.apiKey) {
-                console.error("Firebase Initialization Error: Invalid or missing API Key in configuration.");
-                showMessage("Fout: De app kan niet verbinden met de database. Controleer de configuratie.", () => {
-                     // Optionally, hide loading screen to prevent app from being stuck
+                console.error("Firebase Initialization Error: Invalid or missing API Key in configuration.", { firebaseConfig });
+                showMessage("Fout: De app kan niet verbinden met de database. De configuratie is incorrect. Controleer de API-sleutel.", () => {
                     document.getElementById('loading-screen').classList.add('hidden');
                 });
                 return;
@@ -583,8 +584,8 @@
                     console.error("Fout bij uitloggen:", error);
                 }
             });
-
-            initializeAppAndAuth();
+        
+            start();
         
             const themeToggleBtn = document.getElementById('theme-toggle');
             const body = document.body;
@@ -802,7 +803,6 @@
                 });
             }
         });
-
     </script>
     <style>
         /* General Styles */
@@ -1044,44 +1044,53 @@
 
         <!-- Teacher Section -->
         <div id="teacher-section" class="content-section hidden space-y-6">
-            <div id="teacher-class-management" class="p-6 glass-card">
-                <h2 class="text-xl font-semibold mb-4">Mijn Klassen</h2>
-                <div class="flex space-x-2 mb-4">
-                    <input type="text" id="class-name-input" placeholder="Nieuwe klasnaam" class="w-full p-2 rounded-lg text-black">
-                    <button id="create-class-btn" class="btn btn-primary">Maak aan</button>
+            <div id="teacher-class-management" class="p-6 glass-card space-y-6">
+                <h2 class="text-2xl font-semibold mb-4 text-center">Klasbeheer</h2>
+                <div class="space-y-2">
+                    <h3 class="text-xl font-semibold">Klas aanmaken</h3>
+                    <div class="flex space-x-2">
+                        <input type="text" id="class-name-input" placeholder="Naam van de klas" class="flex-grow p-3 rounded-xl text-black">
+                        <button id="create-class-btn" class="btn btn-secondary">Maak aan</button>
+                    </div>
                 </div>
-                <ul id="class-list" class="space-y-4">
-                    <!-- Classes will be loaded here dynamically -->
-                </ul>
+
+                <div class="space-y-2">
+                    <h3 class="text-xl font-semibold">Jouw klassen</h3>
+                    <ul id="class-list" class="space-y-4">
+                        <!-- Classes will be loaded here dynamically -->
+                    </ul>
+                </div>
             </div>
 
-            <div id="class-view" class="hidden p-6 glass-card">
-                <button id="return-to-classes-btn" class="btn btn-secondary mb-4">Terug naar klassen</button>
-                <h2 class="text-xl font-semibold mb-2">Klas: <span id="current-class-name" class="font-bold"></span></h2>
-                <p class="text-sm text-white/70 mb-4">Klas-ID: <span id="current-class-id" class="font-mono text-xs break-all"></span></p>
+            <div id="class-view" class="p-6 glass-card hidden space-y-6">
+                <button id="return-to-classes-btn" class="btn btn-info flex items-center space-x-2 mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                    </svg>
+                    <span>Terug naar klassen</span>
+                </button>
+                <h2 class="text-3xl font-bold mb-2">Klas: <span id="current-class-name"></span></h2>
+                <p class="text-white/70">Klas ID: <span id="current-class-id" class="font-semibold"></span></p>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Student Management Card -->
-                    <div>
-                        <h3 class="text-lg font-semibold mb-4">Studenten & Ranglijst</h3>
-                        <div class="flex space-x-2 mb-4">
-                            <input type="text" id="student-id-input" placeholder="Student ID" class="w-full p-2 rounded-lg text-black">
-                            <button id="add-student-to-class-btn" class="btn btn-primary px-4 py-2">Voeg toe</button>
-                        </div>
-                        <ul id="student-list" class="space-y-4">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Students List -->
+                    <div class="p-4 glass-card">
+                        <h3 class="text-xl font-semibold mb-4">Studenten</h3>
+                        <ul id="student-list" class="space-y-2">
                             <!-- Students will be loaded here dynamically -->
                         </ul>
                     </div>
-
-                    <!-- Task Management Card -->
-                    <div>
-                        <h3 class="text-lg font-semibold mb-4">Taken</h3>
+                    
+                    <!-- Tasks List & Add Task -->
+                    <div class="p-4 glass-card">
+                        <h3 class="text-xl font-semibold mb-4">Taken</h3>
                         <div class="space-y-2 mb-4">
-                            <input type="text" id="task-text-input" placeholder="Nieuwe taakbeschrijving" class="w-full p-2 rounded-lg text-black">
-                            <input type="number" id="task-points-input" placeholder="Punten" class="w-full p-2 rounded-lg text-black">
+                            <h4 class="font-semibold">Taak toevoegen</h4>
+                            <input type="text" id="task-text-input" placeholder="Taakomschrijving" class="w-full p-2 rounded-lg text-black">
+                            <input type="number" id="task-points-input" placeholder="Aantal punten" class="w-full p-2 rounded-lg text-black">
                             <button id="add-task-to-class-btn" class="w-full btn btn-success">Voeg taak toe</button>
                         </div>
-                        <ul id="task-list" class="space-y-4">
+                        <ul id="task-list" class="space-y-2">
                             <!-- Tasks will be loaded here dynamically -->
                         </ul>
                     </div>
